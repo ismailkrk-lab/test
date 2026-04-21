@@ -1,0 +1,2203 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İSMAİL</title>
+    <script src="https://unpkg.com/docx@7.1.0/build/index.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+        /* ── TEMA DEĞİŞKENLERİ ── */
+        body.light {
+            --bg-page:       #eef2f8;
+            --bg-sidebar:    #f4f7fb;
+            --bg-header:     #1a3a6b;
+            --bg-input:      #ffffff;
+            --bg-input-hover:#eaf1fb;
+            --bg-section:    #e8f0fb;
+            --bg-card:       #ffffff;
+            --bg-ihlal:      #e4edf9;
+            --bg-btn-add:    #dce8f7;
+            --bg-btn-main:   #1a3a6b;
+            --bg-toggle:     rgba(255,255,255,0.18);
+            --border-input:  #c2d4ec;
+            --border-ihlal:  #b3cce8;
+            --border-ihlal-l:#1a3a6b;
+            --border-card:   #d0e0f0;
+            --border-toggle: rgba(255,255,255,0.35);
+            --text-primary:  #1a2744;
+            --text-secondary:#4a6a9a;
+            --text-label:    #6a8cba;
+            --text-ihlal-t:  #1a3a6b;
+            --text-btn-add:  #1a3a6b;
+            --text-btn-main: #ffffff;
+            --text-toggle:   #ffffff;
+            --text-header-sub:#8ab4de;
+            --text-imza-role:#7a9cc4;
+            --text-sep:      #9db4d4;
+            --bg-ceza:       #fff8e6;
+            --border-ceza:   #f0c060;
+            --text-ceza-label:#a07a10;
+            --text-ceza-amount:#c07a00;
+        }
+        body.dark {
+            --bg-page:       #0b1625;
+            --bg-sidebar:    #0f1e35;
+            --bg-header:     #0a1628;
+            --bg-input:      rgba(255,255,255,0.07);
+            --bg-input-hover:rgba(91,155,213,0.12);
+            --bg-section:    rgba(91,155,213,0.07);
+            --bg-card:       rgba(255,255,255,0.04);
+            --bg-ihlal:      rgba(91,155,213,0.09);
+            --bg-btn-add:    rgba(91,155,213,0.1);
+            --bg-btn-main:   #1e5799;
+            --bg-toggle:     rgba(255,255,255,0.08);
+            --border-input:  rgba(255,255,255,0.11);
+            --border-ihlal:  rgba(91,155,213,0.22);
+            --border-ihlal-l:#5b9bd5;
+            --border-card:   rgba(255,255,255,0.08);
+            --border-toggle: rgba(255,255,255,0.15);
+            --text-primary:  #e8f0fb;
+            --text-secondary:#8ab8e0;
+            --text-label:    rgba(232,240,251,0.42);
+            --text-ihlal-t:  #7eb3e8;
+            --text-btn-add:  #7eb3e8;
+            --text-btn-main: #ffffff;
+            --text-toggle:   rgba(232,240,251,0.75);
+            --text-header-sub:#5b8fc4;
+            --text-imza-role:rgba(232,240,251,0.38);
+            --text-sep:      rgba(232,240,251,0.3);
+            --bg-ceza:       rgba(201,160,30,0.12);
+            --border-ceza:   rgba(201,160,30,0.3);
+            --text-ceza-label:rgba(232,210,120,0.65);
+            --text-ceza-amount:#f0c040;
+        }
+
+        /* ── GENEL ── */
+        *, *::before, *::after { box-sizing: border-box; }
+        body {
+            font-family: 'Tahoma', sans-serif;
+            background-color: var(--bg-page);
+            padding: 20px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            transition: background-color 0.25s;
+        }
+
+        /* ── SIDEBAR KAPSAYICI ── */
+        .sidebar {
+            width: 460px;
+            min-width: 300px;
+            flex-shrink: 0;
+            max-height: 95vh;
+            overflow-y: auto;
+            border-radius: 12px;
+            overflow: hidden;
+            background: var(--bg-sidebar);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+            display: flex;
+            flex-direction: column;
+            transition: background 0.25s;
+        }
+        .sidebar-scroll { overflow-y: auto; flex: 1; padding: 0 0 16px; }
+
+        /* ── HEADER ── */
+        .sidebar-header {
+            background: var(--bg-header);
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+        .sidebar-header-left { display: flex; align-items: center; gap: 11px; }
+        .sidebar-logo {
+            width: 32px; height: 32px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 10px; font-weight: bold; color: #fff;
+            letter-spacing: 0.4px; flex-shrink: 0;
+        }
+        .sidebar-title { font-size: 13px; font-weight: bold; color: #fff; letter-spacing: 0.4px; }
+        .sidebar-sub { font-size: 10px; color: var(--text-header-sub); letter-spacing: 0.9px; text-transform: uppercase; margin-top: 1px; }
+        .theme-toggle {
+            background: var(--bg-toggle);
+            border: 1px solid var(--border-toggle);
+            border-radius: 20px;
+            padding: 5px 11px;
+            font-size: 11px;
+            color: var(--text-toggle);
+            cursor: pointer;
+            font-family: 'Tahoma', sans-serif;
+            white-space: nowrap;
+            transition: background 0.15s;
+        }
+
+        /* ── SECTION BAŞLIK ── */
+        .section-title {
+            font-size: 9px;
+            font-weight: bold;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin: 16px 18px 9px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border-input); }
+
+        /* ── INPUT / SELECT / TEXTAREA ── */
+        input, select, textarea {
+            width: 100%;
+            padding: 9px 12px;
+            margin-bottom: 9px;
+            border: 1px solid var(--border-input);
+            border-radius: 7px;
+            box-sizing: border-box;
+            font-size: 13px;
+            font-family: 'Tahoma', sans-serif;
+            background: var(--bg-input);
+            color: var(--text-primary);
+            outline: none;
+            transition: border-color 0.15s, background 0.15s, color 0.15s;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--border-ihlal-l);
+            background: var(--bg-input-hover);
+        }
+        input::placeholder, textarea::placeholder { color: var(--text-label); }
+
+        /* label rengi temadan */
+        label { color: var(--text-primary); font-size: 13px; display: block; margin-bottom: 3px; }
+
+        /* Select ok ikonu — koyu modda açık renk ok */
+        body.light select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%231a3a6b'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 10px 6px;
+            padding-right: 32px;
+            cursor: pointer;
+        }
+        body.dark select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238ab8e0'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 10px 6px;
+            padding-right: 32px;
+            cursor: pointer;
+        }
+        /* Option — sistem rengi, tarayıcı varsayılanı */
+        select option { background: #fff; color: #1a2744; }
+
+        /* ── SAAT YAN YANA ── */
+        .time-wrapper { display: flex; align-items: center; gap: 6px; margin-bottom: 9px; }
+        .time-wrapper input { margin-bottom: 0; text-align: center; flex: 1; }
+        .time-wrapper span { color: var(--text-sep); font-size: 18px; }
+
+        /* ── SIDEBAR İÇ PADDİNG ── */
+        .sidebar-scroll > div[id]:not(.eq-row),
+        .sidebar-scroll > div[class*="panel"]:not(.eq-row) { padding: 0 18px; }
+
+        /* ── SECTION WRAPPER ── */
+        .sb-section { padding: 0 18px; }
+
+        /* ── İHLAL PANELLERİ ── */
+        .ihlal-panel-card {
+            background: var(--bg-ihlal);
+            border: 1px solid var(--border-ihlal);
+            border-left: 3px solid var(--border-ihlal-l);
+            border-radius: 7px;
+            padding: 12px 13px;
+            margin-bottom: 9px;
+        }
+        .ihlal-panel-title {
+            font-size: 9px;
+            font-weight: bold;
+            letter-spacing: 1.1px;
+            text-transform: uppercase;
+            color: var(--text-ihlal-t);
+            margin-bottom: 10px;
+        }
+
+        /* ── EKİPMAN SATIRI ── */
+        .eq-row {
+            background: var(--bg-card);
+            border: 1px dashed var(--border-input);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 9px;
+            position: relative;
+        }
+
+        /* ── BUTONLAR ── */
+        .btn-add {
+            background: var(--bg-btn-add);
+            color: var(--text-btn-add);
+            border: 1px dashed var(--border-ihlal-l);
+            padding: 7px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-bottom: 9px;
+            font-family: 'Tahoma', sans-serif;
+            font-size: 12px;
+            width: 100%;
+            text-align: center;
+        }
+        .btn-del {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 2px 8px;
+            border-radius: 4px;
+            position: absolute;
+            right: 5px; top: 5px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+        .btn-main {
+            background: var(--bg-btn-main);
+            color: var(--text-btn-main);
+            border: none;
+            width: calc(100% - 36px);
+            margin: 12px 18px 4px;
+            padding: 13px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+            font-family: 'Tahoma', sans-serif;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+
+        /* ── WHATSAPP BUTON GRUBU ── */
+        .wa-btn-group {
+            display: flex;
+            gap: 8px;
+            margin: 4px 18px 8px;
+            flex-shrink: 0;
+        }
+        .btn-wa {
+            flex: 1;
+            background: #25D366;
+            color: #ffffff;
+            border: none;
+            padding: 11px 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 13px;
+            font-family: 'Tahoma', sans-serif;
+            letter-spacing: 0.3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .btn-wa:active { opacity: 0.85; }
+        .btn-wa-diger {
+            flex: 0 0 auto;
+            background: transparent;
+            color: #25D366;
+            border: 1.5px solid #25D366;
+            padding: 11px 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: 'Tahoma', sans-serif;
+            white-space: nowrap;
+        }
+        .btn-wa-diger:active { opacity: 0.75; }
+
+        /* ── WHATSAPP NUMARA MODALİ ── */
+        .wa-modal-overlay {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 1001;
+            align-items: center;
+            justify-content: center;
+        }
+        .wa-modal-overlay.show { display: flex; }
+        .wa-modal-box {
+            background: var(--bg-sidebar);
+            border: 1px solid var(--border-card);
+            border-radius: 12px;
+            padding: 22px 20px 18px;
+            width: 300px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+        }
+        .wa-modal-title {
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+        .wa-modal-desc {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+        .wa-modal-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-input);
+            border-radius: 7px;
+            font-size: 15px;
+            font-family: 'Tahoma', sans-serif;
+            background: var(--bg-input);
+            color: var(--text-primary);
+            box-sizing: border-box;
+            margin-bottom: 12px;
+        }
+        .wa-modal-btns { display: flex; gap: 8px; }
+        .wa-modal-btn-iptal {
+            flex: 1; padding: 10px; border-radius: 7px;
+            border: 1px solid var(--border-input);
+            background: var(--bg-input); color: var(--text-primary);
+            font-size: 13px; font-family: 'Tahoma', sans-serif;
+            cursor: pointer; font-weight: bold;
+        }
+        .wa-modal-btn-gonder {
+            flex: 1; padding: 10px; border-radius: 7px;
+            border: none; background: #25D366; color: #fff;
+            font-size: 13px; font-family: 'Tahoma', sans-serif;
+            cursor: pointer; font-weight: bold;
+        }
+
+        /* ── İMZA KARTLARI ── */
+        .imza-card-iga {
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 7px;
+            padding: 9px 12px;
+            margin-bottom: 8px;
+        }
+        .imza-role { font-size: 9px; letter-spacing: 0.8px; text-transform: uppercase; color: var(--text-imza-role); margin-bottom: 3px; }
+        .imza-name-iga { font-size: 12px; font-weight: bold; color: var(--text-primary); }
+        .imza-unvan-iga { font-size: 10px; color: var(--text-label); margin-top: 1px; }
+
+        /* ── MANUAL INPUT GROUP ── */
+        .manual-input-group {
+            background: var(--bg-ihlal);
+            padding: 10px;
+            border: 1px solid var(--border-ihlal);
+            border-radius: 5px;
+            margin-bottom: 9px;
+            display: none;
+        }
+
+        /* ── ÖNIZLEME ── */
+        .preview-area {
+            background: #525659;
+            flex-grow: 1;
+            min-width: 300px;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .paper {
+            background: white;
+            width: 210mm;
+            max-width: 100%;
+            min-height: 297mm;
+            padding: 12.7mm 25.4mm;
+            box-sizing: border-box;
+            font-size: 11pt;
+            font-family: Tahoma, sans-serif;
+            line-height: 1.3;
+            border-radius: 4px;
+        }
+        #out-body p { line-height: 1.7; }
+
+        /* label mini */
+        .field-lbl {
+            font-size: 10px;
+            font-weight: bold;
+            color: var(--text-label);
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            margin-bottom: 3px;
+        }
+        /* ── MODAL ── */
+        .modal-overlay {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.show { display: flex; }
+        .modal-box {
+            background: var(--bg-sidebar);
+            border: 1px solid var(--border-card);
+            border-radius: 12px;
+            padding: 24px;
+            width: 320px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+        }
+        .modal-title {
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+        .modal-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            line-height: 1.6;
+        }
+        .modal-list {
+            font-size: 12px;
+            color: #e05050;
+            margin-bottom: 16px;
+            line-height: 1.8;
+            font-weight: bold;
+        }
+        .modal-btns {
+            display: flex;
+            gap: 8px;
+        }
+        .modal-btn-back {
+            flex: 1;
+            padding: 10px;
+            border-radius: 7px;
+            border: 1px solid var(--border-input);
+            background: var(--bg-input);
+            color: var(--text-primary);
+            font-size: 13px;
+            font-family: 'Tahoma', sans-serif;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .modal-btn-skip {
+            flex: 1;
+            padding: 10px;
+            border-radius: 7px;
+            border: none;
+            background: var(--bg-btn-main);
+            color: var(--text-btn-main);
+            font-size: 13px;
+            font-family: 'Tahoma', sans-serif;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        /* ── MOBİL RESPONSIVE ── */
+        @media (max-width: 768px) {
+            body {
+                padding: 0;
+                gap: 0;
+                flex-direction: column;
+                background-color: var(--bg-sidebar);
+                min-height: 100dvh;
+            }
+
+            /* Sidebar tam ekran */
+            .sidebar {
+                width: 100%;
+                min-width: 0;
+                max-height: none;
+                border-radius: 0;
+                box-shadow: none;
+                padding-bottom: 80px;
+            }
+
+            .sidebar-scroll { padding-bottom: 0; }
+
+            /* Input ve select daha büyük — parmakla dokunuş için */
+            input, select, textarea {
+                font-size: 15px;
+                padding: 11px 13px;
+                margin-bottom: 10px;
+            }
+
+            /* Section padding biraz daha dar */
+            .sb-section { padding: 0 14px; }
+            .section-title { margin: 14px 14px 8px; }
+
+            /* Word butonu altta sabit */
+            .btn-main {
+                position: fixed;
+                bottom: 0; left: 0; right: 0;
+                width: 100%;
+                margin: 0;
+                border-radius: 0;
+                padding: 16px;
+                font-size: 15px;
+                z-index: 100;
+                box-shadow: 0 -2px 12px rgba(0,0,0,0.18);
+            }
+
+            /* Modal telefonda tam genişlik */
+            .modal-box {
+                width: calc(100% - 32px);
+                margin: 0 16px;
+            }
+
+            /* Ekipman butonları */
+            .btn-add { font-size: 14px; padding: 10px 14px; }
+            .btn-del { padding: 4px 10px; font-size: 12px; }
+
+            /* Bölge/KİF: mobilde de yan yana kalır, KİF No biraz daha geniş */
+            #bolge-kif-wrapper { flex-wrap: nowrap; }
+            #bolge-kif-wrapper > div:last-child { flex: 0 0 120px; }
+
+            /* Saat girişi */
+            .time-wrapper input { font-size: 16px; }
+
+            /* İhlal panel card */
+            .ihlal-panel-card { padding: 12px 12px; }
+
+            /* Tema toggle */
+            .theme-toggle { font-size: 12px; padding: 6px 13px; }
+
+            /* Önizleme mobilde de görünsün — sidebar altında */
+            .preview-area {
+                display: flex;
+                padding: 12px;
+                min-height: unset;
+                overflow-x: hidden;
+                margin-bottom: 70px;
+            }
+
+            /* Paper ekran genişliğine göre scale edilir */
+            .paper {
+                width: 100%;
+                min-height: unset;
+                padding: 6mm 8mm;
+                font-size: 8pt;
+                transform-origin: top left;
+                border-radius: 6px;
+            }
+
+            #out-body p { line-height: 1.5; }
+        }
+
+        /* Çok küçük ekranlar (360px altı) */
+        @media (max-width: 360px) {
+            .sidebar-title { font-size: 12px; }
+            .sidebar-sub   { font-size: 9px; }
+            #bolge-kif-wrapper > div:last-child { flex: 0 0 100px; }
+        }
+    </style>
+</head>
+<body class="light">
+
+<div class="modal-overlay" id="eksikModal">
+    <div class="modal-box">
+        <div class="modal-title">Eksik Alanlar</div>
+        <div class="modal-desc">Aşağıdaki alanlar doldurulmamış. Yine de devam etmek ister misiniz?</div>
+        <div class="modal-list" id="eksikListesi"></div>
+        <div class="modal-btns">
+            <button class="modal-btn-back" onclick="modalGeriDon()">← Geri Dön</button>
+            <button class="modal-btn-skip" onclick="modalAtla()">Devam Et →</button>
+        </div>
+    </div>
+</div>
+
+<!-- WhatsApp Farklı Numara Modali -->
+<div class="wa-modal-overlay" id="waModal">
+    <div class="wa-modal-box">
+        <div class="wa-modal-title">📱 WhatsApp Numarası</div>
+        <div class="wa-modal-desc">Telefon numarasını girin (örn: 05321234567)</div>
+        <input class="wa-modal-input" type="tel" id="waNumaraInput" placeholder="05321234567" inputmode="numeric">
+        <div class="wa-modal-btns">
+            <button class="wa-modal-btn-iptal" onclick="waModalKapat()">İptal</button>
+            <button class="wa-modal-btn-gonder" onclick="waModalGonder()">📤 Gönder</button>
+        </div>
+    </div>
+</div>
+
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-header-left">
+      <div class="sidebar-logo">İGA</div>
+      <div>
+        <div class="sidebar-title">Tutanak Motoru</div>
+        <div class="sidebar-sub">Terminal Operasyon</div>
+      </div>
+    </div>
+    <button class="theme-toggle" id="themeToggleBtn" onclick="toggleTheme()">🌙 Koyu</button>
+  </div>
+  <div class="sidebar-scroll">
+
+    <div class="section-title">Genel Bilgiler</div>
+    <div class="sb-section">
+    <label>Tarih</label>
+    <input type="date" id="tarih" oninput="update()">
+    
+    <label id="saat-label">Saat</label>
+    <div class="time-wrapper">
+        <input type="number" id="hh" placeholder="SS" min="0" max="23" oninput="limitV(this,23); update()">
+        <span>.</span>
+        <input type="number" id="mm" placeholder="DD" min="0" max="59" oninput="limitV(this,59); update()">
+    </div>
+
+    <div id="bolge-kif-wrapper" style="display:flex; gap:8px; align-items:flex-end;">
+        <div style="flex:1; min-width:0;">
+            <label id="bolge-kif-label" style="margin-bottom:4px;">Bölge</label>
+            <input type="text" id="bolge" placeholder="Bölge" oninput="update()" style="margin-bottom:0;">
+        </div>
+        <div style="flex:0 0 110px; min-width:0;">
+            <label id="kif-label" style="margin-bottom:4px;">KİF No</label>
+            <input type="text" id="kif" placeholder="KİF No" oninput="update()" style="margin-bottom:0;">
+        </div>
+    </div>
+    <div style="margin-bottom:9px;"></div>
+    </div>
+
+    <div class="section-title">İhlal ve Ekipman Detayı</div>
+    <div class="sb-section">
+    <label>İhlal Maddesi</label>
+    <select id="madde" onchange="togglePanel(); updateCeza()">
+        <option value="EK 6.2">EK 6.2 (Çalışma İzni)</option>
+        <option value="EK 6.34">EK 6.34 (Metrekare Aşımı)</option>
+        <option value="EK 6.43">EK 6.43 (Ekipmana/Mülke Zarar)</option>
+        <option value="EK 6.44">EK 6.44 (Çöp Bırakmak)</option>
+        <option value="EK 6.47">EK 6.47 (Sigara İhlali)</option>
+        <option value="EK 6.49">EK 6.49 (Elektrikli Araç İhlali)</option>
+        <option value="EK 6.57">EK 6.57 (Yüksek Sesle Yolcu Çağırma)</option>
+        <option value="EK 6.61">EK 6.61 (Kontuar/Boarding Evrak)</option>
+        <option value="EK 6.62">EK 6.62 (Kesici/Delici Alet)</option>
+        <option value="EK 6.68">EK 6.68 (Ekipman Başıboş)</option>
+        <option value="EK 6.132">EK 6.132 (FLB Yolcu Mahsur)</option>
+        <option value="SEAL">Engelli WC Seal Tutanağı</option>
+        <option value="KIF_IPTAL">KİF İptal Tutanağı</option>
+        <option value="MANUEL">Diğer (Manuel Yaz)</option>
+    </select>
+
+    <div id="ceza-badge" style="display:none; margin-bottom:9px; padding:6px 12px; border-radius:7px; background:var(--bg-ceza); border:1px solid var(--border-ceza); display:flex; align-items:center; justify-content:space-between;">
+        <span style="font-size:10px; font-weight:bold; letter-spacing:0.8px; text-transform:uppercase; color:var(--text-ceza-label);">Ceza Tutarı</span>
+        <span id="ceza-amount" style="font-size:12px; font-weight:bold; color:var(--text-ceza-amount); letter-spacing:0.5px;"></span>
+    </div>
+
+    <!-- Ek Maddeler -->
+    <div id="ek-maddeler-group" style="margin-bottom:9px;">
+        <div id="ek-madde-list"></div>
+        <button class="btn-add" id="ek-madde-ekle-btn" onclick="ekMaddeEkle()" style="font-size:11px; padding:5px 10px; margin-bottom:0;">+ Ek Madde Ekle</button>
+    </div>
+
+    <div id="firma-group">
+    <label>Firma</label>
+    <select id="firma" onchange="toggleManual('firma'); update()">
+        <option value="" disabled selected>-- Seçiniz --</option>
+        <option value="TGS (Air Clinic)">TGS (Air Clinic)</option>
+        <option value="Havaş Yer Hizmetleri">Havaş Yer Hizmetleri</option>
+        <option value="Çelebi Yer Hizmetleri">Çelebi Yer Hizmetleri</option>
+        <option value="İGA Operasyon">İGA Operasyon</option>
+        <option value="Schindler">Schindler</option>
+        <option value="MANUEL">-- DİĞER (ELLE YAZ) --</option>
+    </select>
+    <div id="firma_box" class="manual-input-group">
+        <input type="text" id="firma_n" placeholder="Firma adını yazınız" oninput="update()">
+    </div>
+    </div>
+
+    <div id="eq-panel">
+        <button class="btn-add" onclick="addEqRow()">+ Ekipman Ekle</button>
+        <div id="eq-list"></div>
+    </div>
+
+    <div id="ek647-panel" style="display:none;">
+        <div class="ihlal-panel-card">
+            <label style="font-size:12px; font-weight:bold; color:var(--text-ihlal-t);">👤 İhlali Yapan Personel Bilgileri</label>
+            <input type="text" id="p647_adsoyad" placeholder="Ad Soyad (örn: Kemal EREN)" oninput="update()" style="margin-top:6px;">
+            <input type="text" id="p647_kurum" placeholder="Kurumu (örn: TGS, UFS)" oninput="update()">
+            <input type="text" id="p647_unvan" placeholder="Ünvanı (örn: Yolcu Hizmetleri Memuru)" oninput="update()">
+        </div>
+    </div>
+
+    <div id="ek657-panel" style="display:none;">
+        <div class="ihlal-panel-card">
+            <label style="font-size:12px; font-weight:bold; color:var(--text-ihlal-t);">📢 Yüksek Sesle Yolcu Çağırma</label>
+            <input type="text" id="p657_adsoyad" placeholder="Ad Soyad (örn: Volkan ÇETİN)" oninput="update()" style="margin-top:6px;">
+            <input type="text" id="p657_kurum" placeholder="Kurumu (örn: Baf Turizm)" oninput="update()">
+            <input type="text" id="p657_unvan" placeholder="Ünvanı (örn: satış personeli)" oninput="update()">
+        </div>
+    </div>
+
+    <div id="ek62-panel" style="display:none;">
+        <div class="ihlal-panel-card">
+            <label style="font-size:12px; font-weight:bold; color:var(--text-ihlal-t);">🔧 Çalışma İzni İhlali Bilgileri</label>
+            <label style="font-size:11px; margin-top:8px; display:block; color:var(--text-label);">Firma</label>
+            <input type="text" id="p62_firma" placeholder="örn: Vanderlande'a bağlı LST firması" oninput="update()" style="margin-top:4px;">
+            <label style="font-size:11px; margin-top:4px; display:block; color:var(--text-label);">Açıklama <span style="font-weight:normal;">(opsiyonel)</span></label>
+            <input type="text" id="p62_aciklama" placeholder="örn: izinsiz elektrik panosu açarak" oninput="update()" style="margin-top:4px;">
+            <label style="font-size:11px; font-weight:bold; color:var(--text-ihlal-t); display:flex; align-items:center; gap:6px; cursor:pointer; margin-top:4px;">
+                <input type="checkbox" id="p62_to_cb" onchange="update()" style="width:auto; margin:0;">
+                Terminal Operasyon Müdürlüğüne bilgi verilmeden
+            </label>
+        </div>
+    </div>
+
+    <div id="ek634-panel" style="display:none;">
+        <div class="ihlal-panel-card">
+            <label style="font-size:12px; font-weight:bold; color:var(--text-ihlal-t);">📐 Metrekare Aşımı Bilgileri</label>
+            <input type="text" id="p634_firma_tam" placeholder="Firma tam adı (örn: Özözler Deri - Guard Leather)" oninput="update()" style="margin-top:6px;">
+        </div>
+    </div>
+
+    <div id="ek661-panel" style="display:none;">
+        <div class="ihlal-panel-card">
+            <label style="font-size:12px; font-weight:bold; color:var(--text-ihlal-t);">📋 Evrak İhlali Bilgileri</label>
+            <label style="font-size:11px; margin-top:8px; display:block; color:var(--text-label);">Mahal Tipi</label>
+            <select id="p661_mahal_tip" onchange="toggle661Kontuar(); update()" style="margin-top:4px;">
+                <option value="boarding">Boarding Masası</option>
+                <option value="kontuar">Check-in Kontuarı</option>
+            </select>
+            <div id="p661_kontuar_group" style="display:none;">
+                <input type="text" id="p661_kontuar_no" placeholder="Kontuar kodu (örn: B39, F katı B39)" oninput="update()" style="margin-top:4px;">
+            </div>
+            <select id="p661_firma_sel" onchange="toggle661Firma(); update()" style="margin-top:6px;">
+                <option value="" disabled selected>-- Firma Seçiniz --</option>
+                <option value="TGS Yer Hizmetleri (Türk Hava Yolları)">TGS Yer Hizmetleri (THY)</option>
+                <option value="Havaş Yer Hizmetleri">Havaş Yer Hizmetleri</option>
+                <option value="Çelebi Yer Hizmetleri">Çelebi Yer Hizmetleri</option>
+                <option value="FUGO Yer Hizmetleri">FUGO Yer Hizmetleri</option>
+                <option value="İGA Operasyon">İGA Operasyon</option>
+                <option value="MANUEL">-- DİĞER (ELLE YAZ) --</option>
+            </select>
+            <div id="p661_firma_manuel" style="display:none;">
+                <input type="text" id="p661_firma" placeholder="Firma adını yazınız" oninput="update()" style="margin-top:4px;">
+            </div>
+            <input type="text" id="p661_evraklar" placeholder="Evrak detayı (örn: Boarding kartları, numaratör panosu)" oninput="update()">
+        </div>
+    </div>
+
+    <div id="ek662-panel" style="display:none;">
+        <div class="ihlal-panel-card">
+            <label style="font-size:12px; font-weight:bold; color:var(--text-ihlal-t);">🔧 İhlal Bilgileri</label>
+            <input type="text" id="p662_magaza" placeholder="Mağaza/işletme adı (örn: Golden Goose)" oninput="update()" style="margin-top:6px;">
+            <input type="text" id="p662_aletler" placeholder="Alet detayı (örn: alet çantası, testere, matkap)" oninput="update()">
+        </div>
+    </div>
+
+    <textarea id="manuel_detay" style="display:none;" rows="3" oninput="update()" placeholder="Olay detayını buraya yazınız..."></textarea>
+    </div><!-- sb-section ihlal -->
+
+    <div id="ek6132-panel" style="display:none;">
+        <div class="ihlal-panel-card">
+            <label style="font-size:12px; font-weight:bold; color:var(--text-ihlal-t);">🚨 FLB Yolcu Mahsur Bilgileri</label>
+            <label style="font-size:11px; margin-top:8px; display:block; color:var(--text-label);">Firma</label>
+            <select id="p6132_firma_sel" onchange="toggle6132Firma(); update()" style="margin-top:4px;">
+                <option value="" disabled selected>-- Firma Seçiniz --</option>
+                <option value="TGS Yer Hizmetleri">TGS Yer Hizmetleri</option>
+                <option value="Havaş Yer Hizmetleri">Havaş Yer Hizmetleri</option>
+                <option value="Çelebi Yer Hizmetleri">Çelebi Yer Hizmetleri</option>
+                <option value="FUGO Yer Hizmetleri">FUGO Yer Hizmetleri</option>
+                <option value="İGA Operasyon">İGA Operasyon</option>
+                <option value="MANUEL">-- DİĞER (ELLE YAZ) --</option>
+            </select>
+            <div id="p6132_firma_manuel" style="display:none;">
+                <input type="text" id="p6132_firma_text" placeholder="Firma adını yazınız" oninput="update()" style="margin-top:4px;">
+            </div>
+            <div style="margin-top:6px;">
+                <button class="btn-add" onclick="toggle6132Personel()" id="p6132_personel_btn" type="button" style="font-size:12px; padding:4px 10px; margin-bottom:0;">+ Personel Ekle</button>
+            </div>
+            <div id="p6132_personel_group" style="display:none; margin-top:6px; background:var(--bg-ihlal); border:1px solid var(--border-ihlal); border-radius:6px; padding:8px;">
+                <label style="font-size:11px; font-weight:bold; color:var(--text-ihlal-t);">👤 Personel Adı</label>
+                <input type="text" id="p6132_personel_ad" placeholder="örn: İsmail KORİK" oninput="update()" style="margin-top:4px;">
+                <button onclick="toggle6132Personel()" type="button" style="background:#dc3545; color:white; border:none; padding:2px 8px; border-radius:4px; cursor:pointer; font-size:11px; margin-top:4px;">Personeli Kaldır</button>
+            </div>
+            <label style="font-size:11px; margin-top:8px; display:block; color:var(--text-label);">Havayolu Adı</label>
+            <input type="text" id="p6132_havayolu" placeholder="örn: Türk Hava Yolları'nın, Belavia Havayolları'nın" oninput="update()" style="margin-top:4px;">
+            <label style="font-size:11px; margin-top:8px; display:block; color:var(--text-label);">Sefer No</label>
+            <input type="text" id="p6132_sefer" placeholder="örn: TK2215, B20783" oninput="update()" style="margin-top:4px;">
+            <label style="font-size:11px; margin-top:8px; display:block; color:var(--text-label);">Güzergah (Kalkış-İstanbul)</label>
+            <input type="text" id="p6132_guzergah" placeholder="örn: Adıyaman-İstanbul (ADF-IST)" oninput="update()" style="margin-top:4px;">
+            <label style="font-size:11px; margin-top:8px; display:block; color:var(--text-label);">Yolcu Tipi</label>
+            <select id="p6132_yolcu_tip" onchange="update()" style="margin-top:4px;">
+                <option value="gelen">Gelen Yolcu</option>
+                <option value="giden">Giden Yolcu</option>
+                <option value="transfer">Transfer Yolcusu</option>
+            </select>
+            <label style="font-size:11px; margin-top:8px; display:block; color:var(--text-label);">Yolcu Adı/Adları</label>
+            <input type="text" id="p6132_yolcu" placeholder="örn: Tatsiana ŞENER, Demir ŞENER (virgülle ayırın)" oninput="update()" style="margin-top:4px;">
+        </div>
+    </div>
+
+    <div id="ek649-panel" style="display:none;">
+        <div class="ihlal-panel-card">
+            <label style="font-size:12px; font-weight:bold; color:var(--text-ihlal-t);">🚗 Elektrikli Araç İhlali Bilgileri</label>
+            <label style="font-size:11px; margin-top:8px; display:block; color:var(--text-label);">İhlal Tipi</label>
+            <select id="p649_tip" onchange="toggle649Tip(); update()" style="margin-top:4px;">
+                <option value="" disabled selected>-- Seçiniz --</option>
+                <option value="yasak_bolge">Yasaklı Bölgede Kullanmak</option>
+                <option value="telefon">Seyir Halinde Telefon Kullanmak</option>
+                <option value="kemer">Kemer Takmadan Yolcu Taşımak</option>
+                <option value="hiz">Hız Sınırını Aşmak</option>
+                <option value="hiz_kesici">Hız Kesici Aparat Eksikliği</option>
+                <option value="baska_arac">Kullanım Sırasında Başka Araç İtmek</option>
+            </select>
+            <div id="p649_yasak_bolge_group" style="display:none; margin-top:6px; background:var(--bg-ihlal); border:1px solid var(--border-ihlal); border-radius:6px; padding:8px;">
+                <label style="font-size:11px; font-weight:bold; color:var(--text-ihlal-t); display:flex; align-items:center; gap:6px; cursor:pointer;">
+                    <input type="checkbox" id="p649_yolcu_yok_cb" onchange="update()" style="width:auto; margin:0;">
+                    Araçta yolcu bulunmadığı esnada
+                </label>
+            </div>
+            <label style="font-size:11px; margin-top:8px; display:block; color:var(--text-label);">Firma</label>
+            <select id="p649_firma_sel" onchange="toggle649Firma(); update()" style="margin-top:4px;">
+                <option value="" disabled selected>-- Firma Seçiniz --</option>
+                <option value="TGS (Air Clinic)">TGS (Air Clinic)</option>
+                <option value="Havaş Yer Hizmetleri">Havaş Yer Hizmetleri</option>
+                <option value="Çelebi Yer Hizmetleri">Çelebi Yer Hizmetleri</option>
+                <option value="İGA Operasyon">İGA Operasyon</option>
+                <option value="Schindler">Schindler</option>
+                <option value="MANUEL">-- DİĞER (ELLE YAZ) --</option>
+            </select>
+            <div id="p649_firma_manuel" style="display:none;">
+                <input type="text" id="p649_firma_text" placeholder="Firma adını yazınız" oninput="update()" style="margin-top:4px;">
+            </div>
+            <label style="font-size:11px; margin-top:8px; display:block; color:var(--text-label);">Personel Adı Soyadı</label>
+            <input type="text" id="p649_personel" placeholder="örn: Ogün YILMAZ" oninput="update()" style="margin-top:4px;">
+            <label style="font-size:11px; margin-top:8px; display:block; color:var(--text-label);">Araç Tipi</label>
+            <select id="p649_arac_tip" onchange="update()" style="margin-top:4px;">
+                <option value="" disabled selected>-- Seçiniz --</option>
+                <option value="akülü tekerlekli sandalye">Akülü Tekerlekli Sandalye</option>
+                <option value="buggy">Buggy</option>
+                <option value="bisiklet">Bisiklet</option>
+            </select>
+            <label style="font-size:11px; margin-top:8px; display:block; color:var(--text-label);">Araç Plakası</label>
+            <input type="text" id="p649_plaka" placeholder="örn: 0540" oninput="update()" style="margin-top:4px;">
+            <div id="p649_hiz_kesici_group" style="display:none; margin-top:6px; background:var(--bg-ihlal); border:1px solid var(--border-ihlal); border-radius:6px; padding:8px;">
+                <label style="font-size:11px; font-weight:bold; color:var(--text-ihlal-t);">Aparat Durumu</label>
+                <select id="p649_aparat_durum" onchange="update()" style="margin-top:4px;">
+                    <option value="sinirsiz">Hız Sınırlandırılmamış (Aparat Takılı Değil)</option>
+                    <option value="kablo_yok">Hız Sınırlayıcı Aparat Kablosu Takılı Değil</option>
+                </select>
+            </div>
+            <div id="p649_baska_arac_group" style="display:none; margin-top:6px; background:var(--bg-ihlal); border:1px solid var(--border-ihlal); border-radius:6px; padding:8px;">
+                <label style="font-size:11px; font-weight:bold; color:var(--text-ihlal-t);">İtilen Araç</label>
+                <select id="p649_itilen_tip" onchange="document.getElementById('p649_itilen_manuel').style.display=(this.value==='MANUEL'?'block':'none'); update()" style="margin-top:4px;">
+                    <option value="manuel tekerlekli sandalye">Manuel Tekerlekli Sandalye</option>
+                    <option value="bagaj arabası">Bagaj Arabası</option>
+                    <option value="MANUEL">-- DİĞER (ELLE YAZ) --</option>
+                </select>
+                <div id="p649_itilen_manuel" style="display:none;">
+                    <input type="text" id="p649_itilen_text" placeholder="İtilen araç adı" oninput="update()" style="margin-top:4px;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="ek643-panel" style="display:none;">
+        <div class="ihlal-panel-card">
+            <label style="font-size:12px; font-weight:bold; color:var(--text-ihlal-t);">💥 Zarar Bilgileri</label>
+
+            <label style="font-size:11px; margin-top:8px; display:block; color:var(--text-label);">Spesifik Mahal <span style="font-weight:normal;">(opsiyonel)</span></label>
+            <input type="text" id="p643_mahal" placeholder="örn: F pier knuckle bölgesinde" oninput="update()" style="margin-top:4px;">
+
+            <label style="font-size:11px; margin-top:4px; display:block; color:var(--text-label);">Hasarlı Ekipman / Mülk <span style="font-weight:normal;">(yalın halde yaz)</span></label>
+            <select id="p643_hasar_sel" onchange="document.getElementById('p643_hasar_manuel').style.display=(this.value==='MANUEL'?'block':'none'); update()" style="margin-top:4px;">
+                <option value="" disabled selected>-- Seçiniz --</option>
+                <option value="yangın dolabı">Yangın Dolabı</option>
+                <option value="RFID cihazı">RFID Cihazı</option>
+                <option value="asansör">Asansör</option>
+                <option value="DVT ünitesi">DVT Ünitesi</option>
+                <option value="kayar kapı">Kayar Kapı</option>
+                <option value="dikey ekran">Dikey Ekran</option>
+                <option value="yürüyen bant yanı metal tekmelik">Yürüyen Bant Tekmeliği</option>
+                <option value="boarding masası">Boarding Masası</option>
+                <option value="MANUEL">-- DİĞER (ELLE YAZ) --</option>
+            </select>
+            <div id="p643_hasar_manuel" style="display:none;">
+                <input type="text" id="p643_hasar_text" placeholder="örn: yangın dolabı (yalın halde)" oninput="update()" style="margin-top:4px;">
+            </div>
+
+            <label style="font-size:11px; margin-top:8px; display:block; color:var(--text-label);">Firma</label>
+            <select id="p643_firma_sel" onchange="document.getElementById('p643_firma_manuel').style.display=(this.value==='MANUEL'?'block':'none'); update()" style="margin-top:4px;">
+                <option value="" disabled selected>-- Firma Seçiniz --</option>
+                <option value="TGS (Air Clinic)">TGS (Air Clinic)</option>
+                <option value="Havaş Yer Hizmetleri">Havaş Yer Hizmetleri</option>
+                <option value="Çelebi Yer Hizmetleri">Çelebi Yer Hizmetleri</option>
+                <option value="FUGO Yer Hizmetleri">FUGO Yer Hizmetleri</option>
+                <option value="İGA Operasyon">İGA Operasyon</option>
+                <option value="MEDICANA">MEDICANA</option>
+                <option value="Taya Yolcu Hizmetleri">Taya Yolcu Hizmetleri</option>
+                <option value="Gözen Havacılık">Gözen Havacılık</option>
+                <option value="MANUEL">-- DİĞER (ELLE YAZ) --</option>
+            </select>
+            <div id="p643_firma_manuel" style="display:none;">
+                <input type="text" id="p643_firma_text" placeholder="Firma adını yazınız" oninput="update()" style="margin-top:4px;">
+            </div>
+
+            <label style="font-size:11px; margin-top:4px; display:block; color:var(--text-label);">Personel Ad Soyad <span style="font-weight:normal;">(boş = "firma personelinin" yazılır)</span></label>
+            <input type="text" id="p643_personel" placeholder="örn: Uğur YILDIRIM — boş bırakılabilir" oninput="update()" style="margin-top:4px;">
+
+            <label style="font-size:11px; margin-top:4px; display:block; color:var(--text-label);">Araç Tipi</label>
+            <select id="p643_arac_tip" onchange="document.getElementById('p643_arac_manuel').style.display=(this.value==='MANUEL'?'block':'none'); update()" style="margin-top:4px;">
+                <option value="" disabled selected>-- Seçiniz --</option>
+                <option value="buggy aracı">Buggy Aracı</option>
+                <option value="elektrikli wheelchair">Elektrikli Wheelchair</option>
+                <option value="elektrikli mobil ambulans aracı">Elektrikli Mobil Ambulans</option>
+                <option value="MANUEL">-- DİĞER (ELLE YAZ) --</option>
+            </select>
+            <div id="p643_arac_manuel" style="display:none;">
+                <input type="text" id="p643_arac_text" placeholder="Araç tipi" oninput="update()" style="margin-top:4px;">
+            </div>
+
+            <label style="font-size:11px; margin-top:4px; display:block; color:var(--text-label);">Araç Plakası <span style="font-weight:normal;">(opsiyonel)</span></label>
+            <input type="text" id="p643_plaka" placeholder="örn: 0108" oninput="update()" style="margin-top:4px;">
+
+            <label style="font-size:11px; margin-top:4px; display:block; color:var(--text-label);">Hareket / Manevra <span style="font-weight:normal;">(boş bırakılabilir)</span></label>
+            <select id="p643_hareket" onchange="document.getElementById('p643_hareket_manuel').style.display=(this.value==='MANUEL'?'block':'none'); update()" style="margin-top:4px;">
+                <option value="">-- Seçiniz (opsiyonel) --</option>
+                <option value="geri manevra yaptığı esnada">Geri Manevra</option>
+                <option value="geçiş yaptığı esnada">Geçiş</option>
+                <option value="park ettiği esnada">Park Ederken</option>
+                <option value="seyir halindeyken">Seyir Halinde</option>
+                <option value="ilerlediği esnada">İlerlerken</option>
+                <option value="MANUEL">-- DİĞER (ELLE YAZ) --</option>
+            </select>
+            <div id="p643_hareket_manuel" style="display:none;">
+                <input type="text" id="p643_hareket_text" placeholder="örn: yükleme yaptığı esnada" oninput="update()" style="margin-top:4px;">
+            </div>
+        </div>
+    </div>
+
+    <div id="ek644-panel" style="display:none;">
+        <div class="ihlal-panel-card">
+            <label style="font-size:12px; font-weight:bold; color:var(--text-ihlal-t);">🗑️ Çöp Bırakma Bilgileri</label>
+            <label style="font-size:11px; margin-top:8px; display:block; color:var(--text-label);">Firma</label>
+            <select id="p644_firma_sel" onchange="toggle644Firma(); update()" style="margin-top:4px;">
+                <option value="" disabled selected>-- Firma Seçiniz --</option>
+                <option value="TGS Yolcu Hizmetleri">TGS Yolcu Hizmetleri</option>
+                <option value="TGS (Air Clinic)">TGS (Air Clinic)</option>
+                <option value="Havaş Yer Hizmetleri">Havaş Yer Hizmetleri</option>
+                <option value="Çelebi Yer Hizmetleri">Çelebi Yer Hizmetleri</option>
+                <option value="FUGO Yer Hizmetleri">FUGO Yer Hizmetleri</option>
+                <option value="İGA Operasyon">İGA Operasyon</option>
+                <option value="MANUEL">-- DİĞER (ELLE YAZ) --</option>
+            </select>
+            <div id="p644_firma_manuel" style="display:none;">
+                <input type="text" id="p644_firma_text" placeholder="Firma adını yazınız" oninput="update()" style="margin-top:4px;">
+            </div>
+            <label style="font-size:11px; margin-top:8px; display:block; color:var(--text-label);">Sefer No</label>
+            <input type="text" id="p644_sefer" placeholder="örn: TK1783" oninput="update()" style="margin-top:4px;">
+            <label style="font-size:11px; margin-top:8px; display:block; color:var(--text-label);">Güzergah</label>
+            <input type="text" id="p644_guzergah" placeholder="örn: İstanbul-Kopenhag (IST-CPH)" oninput="update()" style="margin-top:4px;">
+            <label style="font-size:11px; margin-top:8px; display:block; color:var(--text-label);">Kapı Kodu</label>
+            <input type="text" id="p644_kapi" placeholder="örn: F5(L)" oninput="update()" style="margin-top:4px;">
+            <label style="font-size:11px; margin-top:8px; display:block; color:var(--text-label);">Atık / Çöp Tipi</label>
+            <select id="p644_atik_sel" onchange="document.getElementById('p644_atik_manuel').style.display=(this.value==='MANUEL'?'block':'none'); update()" style="margin-top:4px;">
+                <option value="bagaj etiketi çöplerini">Bagaj Etiketi Çöpleri</option>
+                <option value="MANUEL">-- DİĞER (ELLE YAZ) --</option>
+            </select>
+            <div id="p644_atik_manuel" style="display:none;">
+                <input type="text" id="p644_atik_text" placeholder="örn: plastik bardak, kağıt atık" oninput="update()" style="margin-top:4px;">
+            </div>
+        </div>
+    </div>
+
+    <div id="seal-panel" style="display:none;">
+        <div class="ihlal-panel-card">
+            <label style="font-size:12px; font-weight:bold; color:var(--text-ihlal-t);">🔒 Seal Bilgileri</label>
+            <select id="seal_tip" onchange="update()" style="margin-top:6px;">
+                <option value="kopan">Koparılan / Kırılan Seal</option>
+                <option value="eksik">Eksik Seal</option>
+            </select>
+            <input type="text" id="seal_mahal" placeholder="Mahal kodu (örn: 6_E_0105)" oninput="update()">
+            <div id="seal_eski_group">
+                <input type="text" id="seal_eski_no" placeholder="Eski/Kırılan seal numarası" oninput="update()">
+            </div>
+            <input type="text" id="seal_yeni_no" placeholder="Yeni takılan seal numarası" oninput="update()">
+        </div>
+    </div>
+
+    <div class="section-title">İmza Yetkilileri</div>
+    <div class="sb-section">
+    <div id="imza-duz-sef-group">
+    <label>Düzenleyen</label>
+    <select id="duz" onchange="toggleManual('duz')">
+        <option value="İsmail KORİK|Terminal Operasyon Uzmanı">İsmail KORİK</option>
+        <option value="MANUEL">-- DİĞER (ELLE YAZ) --</option>
+    </select>
+    <div id="duz_box" class="manual-input-group">
+        <input type="text" id="duz_n" placeholder="Ad Soyad" oninput="update()">
+        <input type="text" id="duz_t" placeholder="Unvan" oninput="update()">
+    </div>
+
+    <label>Şef / Md. Yrd.</label>
+    <select id="sef" onchange="toggleManual('sef')">
+        <option value="Erdinç ÇAKIR|Terminal Operasyon Şefi">Erdinç ÇAKIR</option>
+        <option value="Avşar ÜNAL|Terminal Operasyon Şefi">Avşar ÜNAL</option>
+        <option value="Tolga ATABAY|Terminal Operasyon Şefi">Tolga ATABAY</option>
+        <option value="Alper TEZCAN|Terminal Operasyon Şefi">Alper TEZCAN</option>
+        <option value="MANUEL">-- DİĞER (ELLE YAZ) --</option>
+    </select>
+    <div id="sef_box" class="manual-input-group">
+        <input type="text" id="sef_n" placeholder="Ad Soyad" oninput="update()">
+        <input type="text" id="sef_t" placeholder="Unvan" oninput="update()">
+    </div>
+    </div>
+
+    <label>Nöbetçi Müdür</label>
+    <select id="mud" onchange="toggleManual('mud')">
+        <option value="Hüseyin TIRTIR|Terminal Operasyon Nöbetçi Müdürü">Hüseyin TIRTIR</option>
+        <option value="Burak ÇAKIR|Terminal Operasyon Nöbetçi Müdürü">Burak ÇAKIR</option>
+        <option value="Sezgin BALKAN|Terminal Operasyon Nöbetçi Müdürü">Sezgin BALKAN</option>
+        <option value="Nejdet TAŞÇI|Terminal Operasyon Nöbetçi Müdürü">Nejdet TAŞÇI</option>
+        <option value="MANUEL">-- DİĞER (ELLE YAZ) --</option>
+    </select>
+    <div id="mud_box" class="manual-input-group">
+        <input type="text" id="mud_n" placeholder="Ad Soyad" oninput="update()">
+        <input type="text" id="mud_t" placeholder="Unvan" oninput="update()">
+    </div>
+
+    <label>Fotoğraflar</label>
+    <input type="file" id="photos" multiple accept="image/*">
+
+    <div style="display:flex; gap:8px; margin-top:4px; margin-bottom:4px;">
+        <button onclick="sendWhatsApp()" style="flex:1; background:#25D366; color:#fff; border:none; padding:8px 10px; border-radius:7px; font-size:12px; font-weight:bold; font-family:Tahoma,sans-serif; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:5px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            WhatsApp
+        </button>
+        <button onclick="waModalAc()" style="background:transparent; color:#25D366; border:1.5px solid #25D366; padding:8px 11px; border-radius:7px; font-size:11px; font-weight:bold; font-family:Tahoma,sans-serif; cursor:pointer; white-space:nowrap;">✏️ Farklı</button>
+        <button id="kopyala-btn" onclick="metniKopyala()" style="background:transparent; color:var(--text-secondary); border:1.5px solid var(--border-input); padding:8px 11px; border-radius:7px; font-size:11px; font-weight:bold; font-family:Tahoma,sans-serif; cursor:pointer; white-space:nowrap;">📋 Kopyala</button>
+    </div>
+    </div>
+
+    <button class="btn-main" onclick="generateWord()">📄 Word Dosyası Oluştur</button>
+
+  </div><!-- sidebar-scroll -->
+</div><!-- sidebar -->
+
+<div class="preview-area">
+    <div class="paper" id="paperView">
+        <div id="prev-img1" style="height:80px; margin-bottom:0;"></div>
+        <p style="margin:0; padding:0; text-align:right;" id="out-date"></p>
+        <p style="margin:0; padding:0;">&nbsp;</p>
+        <p style="margin:0; padding:0;">&nbsp;</p>
+        <p style="margin:0; padding:0;">&nbsp;</p>
+        <p style="margin:0; padding:0;">&nbsp;</p>
+        <p style="margin:0; padding:0; text-align:center; font-weight:bold; font-size:16pt;">TUTANAK</p>
+        <p style="margin:0; padding:0;">&nbsp;</p>
+        <p style="margin:0; padding:0;">&nbsp;</p>
+        <p style="margin:0; padding:0;">&nbsp;</p>
+        <div id="out-body"></div>
+        <p style="margin:0; padding:0;">&nbsp;</p>
+        <p style="margin:0; padding:0;">&nbsp;</p>
+        <p style="margin:0; padding:0;">&nbsp;</p>
+        <p style="margin:0; padding:0;">&nbsp;</p>
+        <p style="margin:0; padding:0;">&nbsp;</p>
+        <p style="margin:0; padding:0;">&nbsp;</p>
+        <p style="margin:0; padding:0;">&nbsp;</p>
+        <p style="margin:0; padding:0;">&nbsp;</p>
+        <p style="margin:0; padding:0;">&nbsp;</p>
+        <p style="margin:0; padding:0;">&nbsp;</p>
+        <p style="margin:0; padding:0;">&nbsp;</p>
+        <p style="margin:0; padding:0;">&nbsp;</p>
+        <p style="margin:0; padding:0;">&nbsp;</p>
+        <p style="margin:0; padding:0;">&nbsp;</p>
+        <p style="margin:0; padding:0;">&nbsp;</p>
+        <p style="margin:0; padding:0;">&nbsp;</p>
+        <p style="margin:0; padding:0;">&nbsp;</p>
+        <p style="margin:0; padding:0; margin-top:10.58mm;"></p>
+        <p style="margin:0; padding:0;">&nbsp;</p>
+        <div id="prev-duz-sef-table">
+        <table style="width:100%; border:none; text-align:center; border-collapse:collapse;">
+            <tr>
+                <td id="prev-duz" style="width:50%; vertical-align:top; padding:0;"></td>
+                <td id="prev-sef" style="width:50%; vertical-align:top; padding:0;"></td>
+            </tr>
+        </table>
+        </div>
+        <p style="margin:0; padding:0;">&nbsp;</p>
+        <p style="margin:0; padding:0;">&nbsp;</p>
+        <p style="margin:0; padding:0;">&nbsp;</p>
+        <div id="prev-mud" style="text-align:center; margin:0; padding:0;"></div>
+        <div id="prev-img2" style="text-align:left; margin-top:5mm; height:80px;"></div>
+    </div>
+</div>
+</div>
+
+<script>
+    // ── SABİT WHATSAPP NUMARASI — değiştirmek için sadece bu satırı düzenle ──
+    const WA_SABIT_NUMARA = '05313258297';
+
+    function toggleTheme() {
+        const body = document.body;
+        const btn  = document.getElementById('themeToggleBtn');
+        if (body.classList.contains('light')) {
+            body.classList.replace('light', 'dark');
+            btn.textContent = '☀️ Açık';
+        } else {
+            body.classList.replace('dark', 'light');
+            btn.textContent = '🌙 Koyu';
+        }
+    }
+
+    function modalGeriDon() {
+        document.getElementById('eksikModal').classList.remove('show');
+
+    }
+
+    function modalAtla() {
+        document.getElementById('eksikModal').classList.remove('show');
+        _pendingGenerate = true;
+        generateWord();
+    }
+
+    const CEZA_MAP = {
+        'EK 6.43':  'Zarar tazmini + Fatura bedeli üzerinden %10 işlik ücreti + 50 €',
+        'EK 6.44':  '50 €',
+        'EK 6.2':   '300 €',
+        'EK 6.34':  '250 €',
+        'EK 6.47':  '30 €',
+        'EK 6.57':  '1000 €',
+        'EK 6.61':  '30 €',
+        'EK 6.62':  '100 €',
+        'EK 6.49':  '30 €',
+        'EK 6.68':  '30 €',
+        'EK 6.132': '30 €',
+    };
+
+    function updateCeza() {
+        const madde  = document.getElementById('madde').value;
+        const badge  = document.getElementById('ceza-badge');
+        const amount = document.getElementById('ceza-amount');
+        if (CEZA_MAP[madde]) {
+            badge.style.display  = 'flex';
+            amount.textContent   = CEZA_MAP[madde];
+        } else {
+            badge.style.display  = 'none';
+        }
+    }
+
+    // FIX 1 - Logo: önizleme için dataURL, Word için ArrayBuffer ayrı sakla
+    // Logolar koda gömülü
+    function b64ToAB(b64) {
+        const bin = atob(b64);
+        const ab = new ArrayBuffer(bin.length);
+        const view = new Uint8Array(ab);
+        for(let i=0;i<bin.length;i++) view[i]=bin.charCodeAt(i);
+        return ab;
+    }
+    const LOGO1_B64 = "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";
+    const LOGO2_B64 = "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";
+    let logoAB1 = b64ToAB(LOGO1_B64);
+    let logoAB2 = b64ToAB(LOGO2_B64);
+    const months = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
+
+    function limitV(o, m) { if(o.value > m) o.value = m; if(o.value.length > 2) o.value = o.value.slice(0,2); }
+
+    function toggleManual(id) {
+        document.getElementById(id + '_box').style.display = (document.getElementById(id).value === "MANUEL") ? "block" : "none";
+        update();
+    }
+
+    function getP(id) {
+        const s = document.getElementById(id);
+        if(s.value === "MANUEL") {
+            return {
+                n: document.getElementById(id+'_n').value || "İsim Soyisim",
+                t: document.getElementById(id+'_t').value || "Unvan"
+            };
+        }
+        const p = s.value.split('|');
+        return { n: p[0], t: p[1] };
+    }
+
+    function toggle6132Personel() {
+        const g = document.getElementById('p6132_personel_group');
+        const btn = document.getElementById('p6132_personel_btn');
+        const acik = g.style.display === 'block';
+        g.style.display = acik ? 'none' : 'block';
+        btn.textContent = acik ? '+ Personel Ekle' : '− Personeli Kaldır';
+        if (acik) document.getElementById('p6132_personel_ad').value = '';
+        update();
+    }
+
+    function toggle6132Firma() {
+        const sel = document.getElementById('p6132_firma_sel');
+        document.getElementById('p6132_firma_manuel').style.display = (sel.value === 'MANUEL') ? 'block' : 'none';
+        update();
+    }
+
+    function toggle661Firma() {
+        const sel = document.getElementById('p661_firma_sel');
+        document.getElementById('p661_firma_manuel').style.display = (sel.value === 'MANUEL') ? 'block' : 'none';
+        update();
+    }
+
+    function toggle649Firma() {
+        const sel = document.getElementById('p649_firma_sel');
+        document.getElementById('p649_firma_manuel').style.display = (sel.value === 'MANUEL') ? 'block' : 'none';
+        update();
+    }
+
+    function toggle644Firma() {
+        const sel = document.getElementById('p644_firma_sel');
+        document.getElementById('p644_firma_manuel').style.display = (sel.value === 'MANUEL') ? 'block' : 'none';
+        update();
+    }
+
+    function toggle649Tip() {
+        const tip = document.getElementById('p649_tip').value;
+        document.getElementById('p649_hiz_kesici_group').style.display   = (tip === 'hiz_kesici')  ? 'block' : 'none';
+        document.getElementById('p649_baska_arac_group').style.display   = (tip === 'baska_arac')  ? 'block' : 'none';
+        document.getElementById('p649_yasak_bolge_group').style.display  = (tip === 'yasak_bolge') ? 'block' : 'none';
+        // İtilen araç manuel alanı
+        const itilenSel = document.getElementById('p649_itilen_tip');
+        if (itilenSel) {
+            document.getElementById('p649_itilen_manuel').style.display = (itilenSel.value === 'MANUEL') ? 'block' : 'none';
+        }
+        update();
+    }
+
+    function toggle661Kontuar() {
+        const tip = document.getElementById('p661_mahal_tip').value;
+        document.getElementById('p661_kontuar_group').style.display = (tip === 'kontuar') ? 'block' : 'none';
+        update();
+    }
+
+    function togglePanel() {
+        const madde = document.getElementById('madde').value;
+        document.getElementById('eq-panel').style.display      = (madde === 'EK 6.68') ? 'block' : 'none';
+        document.getElementById('ek643-panel').style.display   = (madde === 'EK 6.43') ? 'block' : 'none';
+        document.getElementById('ek644-panel').style.display   = (madde === 'EK 6.44') ? 'block' : 'none';
+        document.getElementById('ek62-panel').style.display    = (madde === 'EK 6.2')  ? 'block' : 'none';
+        document.getElementById('ek647-panel').style.display   = (madde === 'EK 6.47') ? 'block' : 'none';
+        document.getElementById('ek657-panel').style.display   = (madde === 'EK 6.57') ? 'block' : 'none';
+        document.getElementById('ek634-panel').style.display   = (madde === 'EK 6.34') ? 'block' : 'none';
+        document.getElementById('ek661-panel').style.display   = (madde === 'EK 6.61')  ? 'block' : 'none';
+        document.getElementById('ek662-panel').style.display   = (madde === 'EK 6.62')  ? 'block' : 'none';
+        document.getElementById('ek649-panel').style.display   = (madde === 'EK 6.49')  ? 'block' : 'none';
+        document.getElementById('ek6132-panel').style.display  = (madde === 'EK 6.132') ? 'block' : 'none';
+        document.getElementById('seal-panel').style.display    = (madde === 'SEAL')     ? 'block' : 'none';
+        document.getElementById('manuel_detay').style.display  = (madde === 'MANUEL')  ? 'block' : 'none';
+        // Ek madde butonu: SEAL, KIF_IPTAL ve MANUEL'de gizle
+        document.getElementById('ek-maddeler-group').style.display = (madde === 'SEAL' || madde === 'KIF_IPTAL' || madde === 'MANUEL') ? 'none' : 'block';
+        // Firma alanı: 6.47, 6.34, 6.62, SEAL ve KİF İPTAL'da gizle
+        document.getElementById('firma-group').style.display   = (madde === 'EK 6.47' || madde === 'EK 6.57' || madde === 'EK 6.34' || madde === 'EK 6.62' || madde === 'EK 6.61' || madde === 'EK 6.132' || madde === 'EK 6.49' || madde === 'EK 6.2' || madde === 'EK 6.43' || madde === 'EK 6.44' || madde === 'SEAL' || madde === 'KIF_IPTAL' || madde === 'MANUEL') ? 'none' : 'block';
+        // KİF No input'u SEAL seçiliyse gizle
+        document.getElementById('kif').style.display = (madde === 'SEAL') ? 'none' : 'flex';
+        // Sadece Bölge inputunu KİF İPTAL'da gizle, wrapper'ı güncelle
+        const isKifIptal2 = (madde === 'KIF_IPTAL');
+        const bolgeCol = document.getElementById('bolge').closest('div');
+        if (bolgeCol) bolgeCol.style.display = isKifIptal2 ? 'none' : '';
+        // KIF_IPTAL'da KİF No kolonu tam genişlik alır
+        const kifCol = document.getElementById('kif').closest('div');
+        if (kifCol) { kifCol.style.flex = isKifIptal2 ? '1' : '0 0 110px'; kifCol.style.maxWidth = isKifIptal2 ? '100%' : ''; }
+        document.getElementById('bolge-kif-label').innerText = 'Bölge';
+        // Saat alanı ve label'ı KİF İPTAL'da gizle
+        document.querySelector('.time-wrapper').style.display = (madde === 'KIF_IPTAL') ? 'none' : 'flex';
+        document.getElementById('saat-label').style.display = (madde === 'KIF_IPTAL') ? 'none' : '';
+        // Düzenleyen ve Şef imzaları KİF İPTAL'da gizle
+        const isKifIptal = (madde === 'KIF_IPTAL');
+        document.getElementById('imza-duz-sef-group').style.display = isKifIptal ? 'none' : 'block';
+        document.getElementById('prev-duz-sef-table').style.display = isKifIptal ? 'none' : 'block';
+        update();
+    }
+
+    function addEqRow() {
+        const id = Date.now();
+        const html = `
+            <div class="eq-row" id="row_${id}">
+                <button class="btn-del" onclick="removeRow(${id})">X</button>
+                <select onchange="updateRow(${id})" class="eq-type">
+                    <option value="sandalye">Tekerlekli Sandalye</option>
+                    <option value="buggy">Buggy Aracı</option>
+                    <option value="sizer">Sizer (Ölçü Kutusu)</option>
+                    <option value="ikram">İkram Arabası (Meal Cart)</option>
+                    <option value="paravan">Paravan</option>
+                    <option value="diger">Diğer (Manuel)</option>
+                </select>
+                <div id="sub_${id}" class="eq-sub">
+                    <label style="font-size:11px">Tip:</label>
+                    <select class="eq-variant" onchange="togglePlaka(this); update()">
+                        <option value="manuel">Manuel</option>
+                        <option value="akülü elektrikli">Akülü Elektrikli</option>
+                        <option value="kabin içi">Kabin İçi</option>
+                    </select>
+                    <div class="plaka-box" style="display:none; margin-top:4px;">
+                        <input type="text" class="eq-plaka" placeholder="Plakalar (örn: 154, 410)" oninput="update()" style="width:100%; font-size:12px;">
+                        <span class="plaka-warning" style="display:none; color:#c0392b; font-size:11px;">⚠ Lütfen sadece sayı giriniz (örn: 154, 410 veya 126-127)</span>
+                    </div>
+                </div>
+                <span id="count_${id}"><input type="number" class="eq-count" placeholder="Adet" min="1" style="width:60px" oninput="update()"> Adet</span>
+            </div>
+        `;
+        document.getElementById('eq-list').insertAdjacentHTML('beforeend', html);
+        update();
+    }
+
+    function removeRow(id) { document.getElementById('row_'+id).remove(); update(); }
+
+    function togglePlaka(variantSelect) {
+        const plakaBox = variantSelect.closest('.eq-sub').querySelector('.plaka-box');
+        if (plakaBox) {
+            plakaBox.style.display = (variantSelect.value === 'akülü elektrikli') ? 'block' : 'none';
+        }
+        update();
+    }
+
+    function toggleBuggyPlaka(plakaInput) {
+        // Buggy plaka alanı her zaman görünür, bu fonksiyon sadece update tetikler
+        update();
+    }
+
+    function updateRow(id) {
+        const type = document.querySelector(`#row_${id} .eq-type`).value;
+        const sub = document.getElementById(`sub_${id}`);
+        const countSpan = document.getElementById(`count_${id}`);
+        if(type === 'sandalye') {
+            sub.innerHTML = `<label style="font-size:11px">Tip:</label><select class="eq-variant" onchange="togglePlaka(this); update()"><option value="manuel">Manuel</option><option value="akülü elektrikli">Akülü Elektrikli</option><option value="kabin içi">Kabin İçi</option></select><div class="plaka-box" style="display:none; margin-top:4px;"><input type="text" class="eq-plaka" placeholder="Plakalar (örn: 154, 410)" oninput="update()" style="width:100%; font-size:12px;"><span class="plaka-warning" style="display:none; color:#c0392b; font-size:11px;">⚠ Lütfen sadece sayı giriniz (örn: 154, 410 veya 126-127)</span></div>`;
+            if(countSpan) countSpan.style.display = '';
+        } else if(type === 'buggy') {
+            sub.innerHTML = `<div class="plaka-box" style="display:block; margin-top:4px;"><label style="font-size:11px">Plakalar:</label><input type="text" class="eq-plaka buggy-plaka" placeholder="Plakalar (örn: 154, 410)" oninput="update()" style="width:100%; font-size:12px;"><span class="plaka-warning" style="display:none; color:#c0392b; font-size:11px;">⚠ Lütfen sadece sayı giriniz (örn: 154, 410 veya 126-127)</span></div>`;
+            if(countSpan) countSpan.style.display = '';
+        } else if(type === 'paravan') {
+            sub.innerHTML = '';
+            if(countSpan) countSpan.style.display = 'none';
+        } else if(type === 'sizer') {
+            sub.innerHTML = `<label style="font-size:11px; margin-top:4px; display:block;">Havayolu Şirketi <span style="font-weight:normal; color:var(--text-label);">(opsiyonel)</span></label><input type="text" class="eq-havayolu" placeholder="örn: Aeroflot Hava Yolları'na" oninput="update()" style="width:100%; font-size:12px; margin-top:2px;">`;
+            if(countSpan) countSpan.style.display = '';
+        } else if(type === 'diger') {
+            sub.innerHTML = `<input type="text" class="eq-diger-text" placeholder="Ekipman adı yazınız" oninput="update()" style="width:100%;margin-top:4px;">`;
+            if(countSpan) countSpan.style.display = '';
+        } else {
+            sub.innerHTML = '';
+            if(countSpan) countSpan.style.display = '';
+        }
+        update();
+    }
+
+    // FIX 1 - readLogo: önizleme için dataURL, Word için ArrayBuffer ayrı oku
+    function readLogo(n) {
+        const f = document.getElementById('pic' + n).files[0];
+        if (!f) return;
+
+        // Önizleme
+        const rURL = new FileReader();
+        rURL.onload = (e) => {
+            if(n===1) document.getElementById('prev-img1').innerHTML = `<img src="${e.target.result}" height="80">`;
+            else       document.getElementById('prev-img2').innerHTML = `<img src="${e.target.result}" height="80">`;
+        };
+        rURL.readAsDataURL(f);
+
+        // Word için
+        const rAB = new FileReader();
+        rAB.onload = (e) => {
+            if(n===1) logoAB1 = e.target.result;
+            else       logoAB2 = e.target.result;
+        };
+        rAB.readAsArrayBuffer(f);
+    }
+
+    function saatEki(sStr) {
+        // Türkçede saat ekı, saatin tamamının okunuşundaki son kelimeye göre belirlenir.
+        // Dakika 00 ise sadece saat sayısına bakılır, aksi halde dakika sayısına bakılır.
+        const parts = sStr.split('.');
+        const hh = parseInt(parts[0]) || 0;
+        const min = parseInt(parts[1]) || 0;
+
+        // Her sayı için Türkçe okunuşun getirdiği ek
+        const ekSayı = {
+            0:'da', 1:'de', 2:'de', 3:'te', 4:'te', 5:'te', 6:'da', 7:'de',
+            8:'de', 9:'da', 10:'da', 11:'de', 12:'de', 13:'te', 14:'te',
+            15:'te', 16:'da', 17:'de', 18:'de', 19:'da', 20:'de', 21:'de',
+            22:'de', 23:'te', 24:'te', 25:'te', 26:'da', 27:'de', 28:'de',
+            29:'da', 30:'da', 31:'de', 32:'de', 33:'te', 34:'te', 35:'te',
+            36:'da', 37:'de', 38:'de', 39:'da', 40:'da', 41:'de', 42:'de',
+            43:'te', 44:'te', 45:'te', 46:'da', 47:'de', 48:'de', 49:'da',
+            50:'de', 51:'de', 52:'de', 53:'te', 54:'te', 55:'te', 56:'da',
+            57:'de', 58:'de', 59:'da'
+        };
+
+        // Dakika 00 ise ek saate göre, değilse dakikaya göre
+        const hedef = (min === 0) ? hh : min;
+        return ekSayı[hedef] || 'de';
+    }
+
+    function update() {
+        const dVal = document.getElementById('tarih').value;
+        let tStr = "[TARİH]";
+        if(dVal) { const d = new Date(dVal); tStr = `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`; }
+        
+        // FIX 2 - NaN:NaN: boş saat/dakika kontrolü
+        const hhRaw = document.getElementById('hh').value;
+        const mmRaw = document.getElementById('mm').value;
+        const sStr = (hhRaw === '' && mmRaw === '')
+            ? '[SAAT]'
+            : (hhRaw === '' ? '00' : hhRaw.toString().padStart(2,'0')) + '.' + (mmRaw === '' ? '00' : mmRaw.toString().padStart(2,'0'));
+
+        const firmaEl = document.getElementById('firma');
+        let firma, firmaAit;
+        if(firmaEl.value === '') {
+            firma = '[FİRMA]';
+            firmaAit = '[FİRMA] firmasına ait';
+        } else if(firmaEl.value === 'MANUEL') {
+            const manuelAd = document.getElementById('firma_n').value;
+            firma = manuelAd || '[FİRMA YAZISI]';
+            firmaAit = manuelAd || '[FİRMA YAZISI]';
+        } else {
+            firma = firmaEl.value;
+            firmaAit = `${firma} firmasına ait`;
+        }
+
+        const bolge = document.getElementById('bolge').value || '[BÖLGE]';
+        const kif = document.getElementById('kif').value || '[KİF NO]';
+        const madde = document.getElementById('madde').value;
+        
+        let finalBody = "";
+
+        if(madde === "EK 6.68") {            const rows = document.querySelectorAll('.eq-row');
+            let eqParts = [];
+            let hasSandalye = false;
+            rows.forEach(row => {
+                const type = row.querySelector('.eq-type').value;
+                const countEl = row.querySelector('.eq-count');
+                const count = countEl ? countEl.value : '';
+                const adet = count ? `${count} adet ` : '';
+                const variant = row.querySelector('.eq-variant') ? row.querySelector('.eq-variant').value : "";
+                
+                if(type === 'sandalye') {
+                    hasSandalye = true;
+                    const plakaEl = row.querySelector('.eq-plaka');
+                    const plakaVal = plakaEl ? plakaEl.value.trim() : '';
+                    
+                    // Akülü elektrikli + plaka varsa adeti otomatik hesapla
+                    let effectiveCount = count;
+                    if(variant === 'akülü elektrikli' && plakaVal) {
+                        const plakalar = plakaVal.split(/[\s,\-\/;]+/).map(p => p.trim()).filter(p => p && !/^ve$/i.test(p));
+                        const harfliVar = plakalar.some(p => /[a-zA-ZğüşıöçĞÜŞİÖÇ]/.test(p));
+                        const plakaWarningEl = plakaEl ? plakaEl.closest('.plaka-box').querySelector('.plaka-warning') : null;
+                        if(harfliVar) {
+                            if(plakaWarningEl) plakaWarningEl.style.display = 'block';
+                        } else {
+                            if(plakaWarningEl) plakaWarningEl.style.display = 'none';
+                            // Adet kutusunu plaka sayısıyla doldur
+                            if(countEl) countEl.value = plakalar.length;
+                            effectiveCount = plakalar.length;
+                        }
+                    } else {
+                        const plakaWarningEl = plakaEl ? plakaEl.closest('.plaka-box').querySelector('.plaka-warning') : null;
+                        if(plakaWarningEl) plakaWarningEl.style.display = 'none';
+                    }
+
+                    const adetEff = effectiveCount ? `${effectiveCount} adet ` : '';
+                    let sandalyeText = variant === 'akülü elektrikli'
+                        ? `${adetEff}akülü elektrikli sandalye`
+                        : `${adetEff}${variant} tekerlekli sandalye`;
+
+                    if(variant === 'akülü elektrikli' && plakaVal) {
+                        const plakalar = plakaVal.split(/[\s,\-\/;]+/).map(p => p.trim()).filter(p => p && !/^ve$/i.test(p));
+                        const harfliVar = plakalar.some(p => /[a-zA-ZğüşıöçĞÜŞİÖÇ]/.test(p));
+                        if(!harfliVar) {
+                            if(plakalar.length > 2) {
+                                const son = [...plakalar].pop();
+                                sandalyeText += ` (${plakalar.slice(0,-1).join(', ')} ve ${son} plakalı)`;
+                            } else if(plakalar.length === 2) {
+                                sandalyeText += ` (${plakalar[0]} ve ${plakalar[1]} plakalı)`;
+                            } else if(plakalar.length === 1) {
+                                sandalyeText += ` (${plakalar[0]} plakalı)`;
+                            }
+                        }
+                    }
+                    eqParts.push(sandalyeText);
+                }
+                if(type === 'sizer') {
+                    const havayoluEl = row.querySelector('.eq-havayolu');
+                    const havayolu = havayoluEl ? havayoluEl.value.trim() : '';
+                    if (havayolu) {
+                        // Kalıp: "Havayolu'na ait malzemelerin (Bagaj Sizer)"
+                        eqParts.push(`${havayolu} ait malzemelerin (Bagaj Sizer)`);
+                    } else {
+                        eqParts.push(`${adet}sizer (ölçü kutusu)`);
+                    }
+                }
+                if(type === 'ikram') eqParts.push(`${adet}ikram arabası (meal cart)`);
+                if(type === 'paravan') eqParts.push(`malzeme (paravanlar)`);
+                if(type === 'buggy') {
+                    const plakaEl = row.querySelector('.buggy-plaka');
+                    const plakaVal = plakaEl ? plakaEl.value.trim() : '';
+                    let effectiveCount = count;
+                    let buggyText = '';
+                    if(plakaVal) {
+                        const plakalar = plakaVal.split(/[\s,\-\/;]+/).map(p => p.trim()).filter(p => p && !/^ve$/i.test(p));
+                        const harfliVar = plakalar.some(p => /[a-zA-ZğüşıöçĞÜŞİÖÇ]/.test(p));
+                        const plakaWarningEl = plakaEl ? plakaEl.closest('.plaka-box').querySelector('.plaka-warning') : null;
+                        if(harfliVar) {
+                            if(plakaWarningEl) plakaWarningEl.style.display = 'block';
+                            buggyText = `${adet}buggy aracı`;
+                        } else {
+                            if(plakaWarningEl) plakaWarningEl.style.display = 'none';
+                            if(countEl) countEl.value = plakalar.length;
+                            effectiveCount = plakalar.length;
+                            const adetEff = effectiveCount ? `${effectiveCount} adet ` : '';
+                            buggyText = `${adetEff}buggy aracı`;
+                            if(plakalar.length > 2) {
+                                const son = [...plakalar].pop();
+                                buggyText += ` (${plakalar.slice(0,-1).join(', ')} ve ${son} plakalı)`;
+                            } else if(plakalar.length === 2) {
+                                buggyText += ` (${plakalar[0]} ve ${plakalar[1]} plakalı)`;
+                            } else if(plakalar.length === 1) {
+                                buggyText += ` (${plakalar[0]} plakalı)`;
+                            }
+                        }
+                    } else {
+                        buggyText = `${adet}buggy aracı`;
+                    }
+                    eqParts.push(buggyText);
+                }
+                if(type === 'diger') {
+                    const digerEl = row.querySelector('.eq-diger-text');
+                    const digerText = digerEl ? digerEl.value : '';
+                    if(digerText) eqParts.push(`${adet}${digerText}`);
+                }
+            });
+            
+            // Bağlaç: "A, B ve C" formatı
+            let eqText = '';
+            if(eqParts.length === 0) eqText = '';
+            else if(eqParts.length === 1) eqText = eqParts[0];
+            else eqText = eqParts.slice(0, -1).join(', ') + ' ve ' + eqParts[eqParts.length - 1];
+
+            // Sizer havayolu var mı kontrol et
+            const hasSizerHavayolu = Array.from(document.querySelectorAll('.eq-row')).some(row => {
+                const t = row.querySelector('.eq-type');
+                const h = row.querySelector('.eq-havayolu');
+                return t && t.value === 'sizer' && h && h.value.trim();
+            });
+
+            let finalBodyStr;
+            if (hasSizerHavayolu) {
+                // Kalıp: "...eqText FIRMA firması tarafından başıboş bırakıldığı..."
+                finalBodyStr = `${tStr} tarihi saat ${sStr}'${saatEki(sStr)} yapılan saha kontrolleri kapsamında, ${bolge} ${eqText} ${firma} firması tarafından başıboş bırakıldığı tespit edilmiştir.`;
+            } else {
+                const firmaStr = hasSandalye ? `operasyonel faaliyetler için kullanılan ${firmaAit}` : firmaAit;
+                finalBodyStr = `${tStr} tarihi saat ${sStr}'${saatEki(sStr)} yapılan saha kontrolleri kapsamında, ${bolge} ${firmaStr} ${eqText} bırakıldığı tespit edilmiştir.`;
+            }
+            finalBody = `${finalBodyStr}\n\nKonuyla ilgili olarak ${getMaddeKifCumlesi(madde, kif)}\n\nİş bu tutanak imza altına alınmıştır.`;
+        } else if(madde === "EK 6.61") {
+            const sel661     = document.getElementById('p661_firma_sel');
+            const p661Firma  = sel661.value === 'MANUEL'
+                ? (document.getElementById('p661_firma').value.trim() || '[FİRMA ADI]')
+                : (sel661.value || '[FİRMA ADI]');
+            const p661Evrak  = document.getElementById('p661_evraklar').value.trim();
+            const evrakStr   = p661Evrak ? ` (${p661Evrak})` : '';
+            const mahalTip   = document.getElementById('p661_mahal_tip').value;
+            const kontaurNo  = document.getElementById('p661_kontuar_no').value.trim();
+            const mahalStr   = mahalTip === 'kontuar'
+                ? `${kontaurNo ? kontaurNo + ' ' : ''}check-in kontuarında`
+                : 'boarding masası üzerinde';
+            finalBody = `${tStr} tarihi saat ${sStr}'${saatEki(sStr)} yapılan saha kontrolleri kapsamında, ${bolge} ${mahalStr} ${p661Firma} firmasına ait evrakların${evrakStr} açıkta ve başıboş bırakıldığı tespit edilmiştir.\n\nKonu ile ilgili olarak ${getMaddeKifCumlesi(madde, kif)}\n\nİş bu tutanak imza altına alınmıştır.`;
+        } else if(madde === "EK 6.2") {
+            const p62Firma    = document.getElementById('p62_firma').value.trim()    || '[FİRMA]';
+            const p62Aciklama = document.getElementById('p62_aciklama').value.trim();
+            const p62ToCb     = document.getElementById('p62_to_cb').checked;
+            const aciklamaStr = p62Aciklama ? `${p62Aciklama} ` : '';
+            const prosedurStr = p62ToCb
+                ? 'çalışma prosedürüne uygun olmadan (Terminal Operasyon Müdürlüğüne bilgi verilmeden)'
+                : 'çalışma prosedürüne uygun olmadan';
+            finalBody = `${tStr} tarihi saat ${sStr}'${saatEki(sStr)} yapılan saha kontrolleri kapsamında, ${bolge} ${p62Firma} tarafından ${aciklamaStr}${prosedurStr} çalışma yapıldığı tespit edilmiştir.\n\nKonuyla ilgili olarak ${getMaddeKifCumlesi(madde, kif)}\n\nİş bu tutanak imza altına alınmıştır.`;
+        } else if(madde === "EK 6.34") {
+            const pFirmaTam = document.getElementById('p634_firma_tam').value.trim() || '[FİRMA ADI]';
+            finalBody = `${tStr} tarihi saat ${sStr}'${saatEki(sStr)} yapılan saha kontrolleri kapsamında, ${bolge} ${pFirmaTam}, kendilerine tahsis edilen alanın dışına çıkarak metrekare aşımı yaptığı tespit edilmiştir.\n\nKonuyla ilgili olarak ${getMaddeKifCumlesi(madde, kif)}\n\nİş bu tutanak imza altına alınmıştır.`;
+        } else if(madde === "EK 6.62") {
+            const pMagaza  = document.getElementById('p662_magaza').value.trim()  || '[MAĞAZA/İŞLETME ADI]';
+            const pAletler = document.getElementById('p662_aletler').value.trim();
+            const aletStr  = pAletler ? ` (${pAletler})` : '';
+            finalBody = `${tStr} tarihi saat ${sStr}'${saatEki(sStr)} yapılan saha kontrolleri kapsamında, ${bolge} ${pMagaza} tarafından kesici/delici aletlerin${aletStr} yolcu erişimine açık bir şekilde bırakıldığı tespit edilmiştir.\n\nKonuyla ilgili olarak ${getMaddeKifCumlesi(madde, kif)}\n\nİş bu tutanak imza altına alınmıştır.`;
+        } else if(madde === "EK 6.47") {
+            const pAdSoyad = document.getElementById('p647_adsoyad').value.trim() || '[AD SOYAD]';
+            const pKurum   = document.getElementById('p647_kurum').value.trim()   || '[KURUM]';
+            const pUnvan   = document.getElementById('p647_unvan').value.trim()   || '[ÜNVAN]';
+            // Türkçe iyelik eki: adın son sesli harfine göre
+            function iyelikEki(ad) {
+                const temiz = ad.trim().toLocaleLowerCase('tr');
+                // Son sesli harfi bul
+                const sesliler = ['a','e','ı','i','o','ö','u','ü'];
+                let sonSesli = '';
+                for(let i = temiz.length-1; i >= 0; i--) {
+                    if(sesliler.includes(temiz[i])) { sonSesli = temiz[i]; break; }
+                }
+                const kalınMap = { 'a':'ın', 'ı':'ın', 'o':'un', 'u':'un' };
+                const inceMap  = { 'e':'in', 'i':'in', 'ö':'ün', 'ü':'ün' };
+                const sonHarf = temiz.slice(-1);
+                const sesliBiter = sesliler.includes(sonHarf);
+                const ek = kalınMap[sonSesli] || inceMap[sonSesli] || 'ın';
+                return sesliBiter ? `'n${ek}` : `'${ek}`;
+            }
+            finalBody = `${tStr} tarihi saat ${sStr}'${saatEki(sStr)} yapılan saha kontrolleri kapsamında, ${bolge} ${pKurum} (${pUnvan}) personeli ${pAdSoyad}${iyelikEki(pAdSoyad)} belirlenmiş olan sigara içme alanlarının dışında sigara içtiği tespit edilmiştir.\n\nKonuyla ilgili olarak ${getMaddeKifCumlesi(madde, kif)}\n\nİş bu tutanak imza altına alınmıştır.`;
+        } else if(madde === "EK 6.57") {
+            const p657AdSoyad = document.getElementById('p657_adsoyad').value.trim() || '[AD SOYAD]';
+            const p657Kurum   = document.getElementById('p657_kurum').value.trim()   || '[KURUM]';
+            const p657Unvan   = document.getElementById('p657_unvan').value.trim()   || '[ÜNVAN]';
+            function iyelikEki657(ad) {
+                const temiz = ad.trim().toLocaleLowerCase('tr');
+                const sesliler = ['a','e','ı','i','o','ö','u','ü'];
+                let sonSesli = '';
+                for(let i = temiz.length-1; i >= 0; i--) {
+                    if(sesliler.includes(temiz[i])) { sonSesli = temiz[i]; break; }
+                }
+                const kalınMap = { 'a':'ın', 'ı':'ın', 'o':'un', 'u':'un' };
+                const inceMap  = { 'e':'in', 'i':'in', 'ö':'ün', 'ü':'ün' };
+                const sonHarf = temiz.slice(-1);
+                const sesliBiter = sesliler.includes(sonHarf);
+                const ek = kalınMap[sonSesli] || inceMap[sonSesli] || 'ın';
+                return sesliBiter ? `'n${ek}` : `'${ek}`;
+            }
+            finalBody = `${tStr} tarihinde saat ${sStr}'${saatEki(sStr)} yapılan saha kontrolleri esnasında, ${bolge} ${p657Kurum} (${p657Unvan}) personeli ${p657AdSoyad}${iyelikEki657(p657AdSoyad)} yüksek sesle yolcu çağırdığı tespit edilmiştir.\n\nKonuyla ilgili olarak ${getMaddeKifCumlesi(madde, kif)}\n\nİş bu tutanak imza altına alınmıştır.`;
+        } else if(madde === "EK 6.132") {
+            const sel6132    = document.getElementById('p6132_firma_sel');
+            const p6132Firma = sel6132.value === 'MANUEL'
+                ? (document.getElementById('p6132_firma_text').value.trim() || '[FİRMA ADI]')
+                : (sel6132.value || '[FİRMA ADI]');
+            const p6132Hava  = document.getElementById('p6132_havayolu').value.trim() || '[HAVAYOLU]';
+            const p6132Sefer = document.getElementById('p6132_sefer').value.trim()    || '[SEFER NO]';
+            const p6132Guz   = document.getElementById('p6132_guzergah').value.trim() || '[GÜZERGAH]';
+            const p6132YolcuRaw = document.getElementById('p6132_yolcu').value.trim() || '';
+            const yolcuTip   = document.getElementById('p6132_yolcu_tip').value;
+            const personelAcik = document.getElementById('p6132_personel_group').style.display === 'block';
+            const personelAd   = personelAcik ? (document.getElementById('p6132_personel_ad').value.trim()) : '';
+
+            // İsim formatlama: ad baş harf büyük, soyisim TAMAMEN büyük
+            function formatYolcu(str) {
+                const kelimeler = str.trim().split(/\s+/);
+                return kelimeler.map((k, i) => {
+                    if (i === kelimeler.length - 1) return k.toLocaleUpperCase('tr');
+                    return k.charAt(0).toLocaleUpperCase('tr') + k.slice(1).toLocaleLowerCase('tr');
+                }).join(' ');
+            }
+
+            // İyelik eki
+            function iyelik6132(ad) {
+                const temiz = ad.trim().toLocaleLowerCase('tr');
+                const sesliler = ['a','e','ı','i','o','ö','u','ü'];
+                let sonSesli = '';
+                for(let i = temiz.length-1; i >= 0; i--) {
+                    if(sesliler.includes(temiz[i])) { sonSesli = temiz[i]; break; }
+                }
+                const kalinMap = { 'a':'ın', 'ı':'ın', 'o':'un', 'u':'un' };
+                const inceMap  = { 'e':'in', 'i':'in', 'ö':'ün', 'ü':'ün' };
+                const sonHarf  = temiz.slice(-1);
+                const sesliBiter = sesliler.includes(sonHarf);
+                const ek = kalinMap[sonSesli] || inceMap[sonSesli] || 'ın';
+                return sesliBiter ? `'n${ek}` : `'${ek}`;
+            }
+
+            // Yolcu listesini işle: virgülle ayrılmış, son isme iyelik eki, araya "ve"
+            let yolcuMetin = '[YOLCU ADI]';
+            let tekMi = true;
+            if (p6132YolcuRaw) {
+                const liste = p6132YolcuRaw.split(',').map(s => formatYolcu(s.trim())).filter(s => s.length > 0);
+                tekMi = liste.length <= 1;
+                const son = liste[liste.length - 1];
+                if (liste.length === 1) {
+                    yolcuMetin = son;
+                } else if (liste.length === 2) {
+                    yolcuMetin = liste[0] + ' ve ' + son;
+                } else {
+                    yolcuMetin = liste.slice(0, -1).join(', ') + ' ve ' + son;
+                }
+            }
+
+            const misafir = tekMi ? 'isimli misafirimiz' : 'isimli misafirlerimiz';
+
+            // Uçuş yönü
+            const ucusStr = yolcuTip === 'gelen'
+                ? `${p6132Sefer} sefer sayılı ${p6132Guz} uçuşu ile gelen`
+                : yolcuTip === 'giden'
+                ? `${p6132Sefer} sefer sayılı ${p6132Guz} uçuşuyla gidecek olan`
+                : `${p6132Sefer} sefer sayılı ${p6132Guz} uçuşuyla gelen transfer`;
+
+            // Personel mi, firma mı
+            const ayrilanStr = (personelAcik && personelAd)
+                ? `${p6132Firma} personeli ${formatYolcu(personelAd)}${iyelik6132(formatYolcu(personelAd))} bölgeden ayrılması`
+                : `${p6132Firma} personelinin bölgeden ayrılması`;
+
+            finalBody = `${tStr} tarihi saat ${sStr}'${saatEki(sStr)} ${bolge} içerisinde, ${p6132Hava} ${ucusStr} ${yolcuMetin} ${misafir}, ${ayrilanStr} nedeniyle FLB içerisinde mahsur kaldığı tespit edilmiştir.\n\nKonuyla ilgili olarak ${getMaddeKifCumlesi(madde, kif)}\n\nİş bu tutanak imza altına alınmıştır.`;
+        } else if(madde === "EK 6.43") {
+            const p643Mahal    = document.getElementById('p643_mahal').value.trim();
+            const hasarSel643  = document.getElementById('p643_hasar_sel');
+            const p643Hasar    = hasarSel643.value === 'MANUEL'
+                ? (document.getElementById('p643_hasar_text').value.trim() || '[HASAR GÖREN EKİPMAN]')
+                : (hasarSel643.value || '[HASAR GÖREN EKİPMAN]');
+            const firmaSel643  = document.getElementById('p643_firma_sel');
+            const p643Firma    = firmaSel643.value === 'MANUEL'
+                ? (document.getElementById('p643_firma_text').value.trim() || '[FİRMA ADI]')
+                : (firmaSel643.value || '[FİRMA ADI]');
+            const p643Personel = document.getElementById('p643_personel').value.trim();
+            const aracSel643   = document.getElementById('p643_arac_tip');
+            const p643Arac     = aracSel643.value === 'MANUEL'
+                ? (document.getElementById('p643_arac_text').value.trim() || '[ARAÇ TİPİ]')
+                : (aracSel643.value || '[ARAÇ TİPİ]');
+            const p643Plaka    = document.getElementById('p643_plaka').value.trim();
+            const p643HareketSel = document.getElementById('p643_hareket').value;
+            const p643Hareket  = p643HareketSel === 'MANUEL'
+                ? (document.getElementById('p643_hareket_text').value.trim() || '')
+                : p643HareketSel;
+
+            // Mahal: bölge + spesifik
+            const mahalStr643 = p643Mahal ? `${bolge} ${p643Mahal}` : bolge;
+
+            // Araç: plaka varsa önüne ekle
+            const aracStr643 = p643Plaka ? `${p643Plaka} plakalı ${p643Arac}` : p643Arac;
+
+            // İyelik eki fonksiyonu
+            function iyelik643(ad) {
+                const temiz = ad.trim().toLocaleLowerCase('tr');
+                const sesliler = ['a','e','ı','i','o','ö','u','ü'];
+                let sonSesli = '';
+                for(let i = temiz.length-1; i >= 0; i--) {
+                    if(sesliler.includes(temiz[i])) { sonSesli = temiz[i]; break; }
+                }
+                const kalinMap = { 'a':'ın', 'ı':'ın', 'o':'un', 'u':'un' };
+                const inceMap  = { 'e':'in', 'i':'in', 'ö':'ün', 'ü':'ün' };
+                const sonHarf  = temiz.slice(-1);
+                const sesliBiter = sesliler.includes(sonHarf);
+                const ek = kalinMap[sonSesli] || inceMap[sonSesli] || 'ın';
+                return sesliBiter ? `'n${ek}` : `'${ek}`;
+            }
+
+            // Hareket boşsa cümledeki "ile X esnada" parçası düşer
+            let kisiStr643;
+            if (p643Personel) {
+                kisiStr643 = p643Hareket
+                    ? `${p643Firma} personeli ${p643Personel}${iyelik643(p643Personel)} ${aracStr643} ile ${p643Hareket}`
+                    : `${p643Firma} personeli ${p643Personel}${iyelik643(p643Personel)} ${aracStr643} ile`;
+            } else {
+                kisiStr643 = p643Hareket
+                    ? `${p643Firma} personelinin ${aracStr643} ile ${p643Hareket}`
+                    : `${p643Firma} personelinin ${aracStr643} ile`;
+            }
+
+            const cumle1 = `${tStr} tarihi saat ${sStr}'${saatEki(sStr)} yapılan saha kontrolleri kapsamında, ${mahalStr643} ${p643Hasar} hasarlı tespit edilmiştir.`;
+            const cumle2 = `Geriye dönük yapılan incelemeler ${kisiStr643} çarpması sonucu hasar meydana geldiği tespit edilmiştir.`;
+
+            finalBody = `${cumle1} ${cumle2}\n\nKonuyla ilgili olarak ${getMaddeKifCumlesi(madde, kif)}\n\nİş bu tutanak imza altına alınmıştır.`;
+        } else if(madde === "EK 6.44") {
+            const sel644    = document.getElementById('p644_firma_sel');
+            const p644Firma = sel644.value === 'MANUEL'
+                ? (document.getElementById('p644_firma_text').value.trim() || '[FİRMA ADI]')
+                : (sel644.value || '[FİRMA ADI]');
+            const p644Sefer   = document.getElementById('p644_sefer').value.trim()   || '[SEFER NO]';
+            const p644Guzergah = document.getElementById('p644_guzergah').value.trim() || '[GÜZERGAH]';
+            const p644Kapi    = document.getElementById('p644_kapi').value.trim()    || '[KAPI KODU]';
+            const atikSel644  = document.getElementById('p644_atik_sel');
+            const p644Atik    = atikSel644.value === 'MANUEL'
+                ? (document.getElementById('p644_atik_text').value.trim() || '[ATIK TİPİ]')
+                : atikSel644.value;
+            const bolge644    = document.getElementById('bolge').value.trim();
+            const bolgeStr644 = bolge644 ? bolge644 + ' ' : '';
+            finalBody = `${tStr} tarihi saat ${sStr}'${saatEki(sStr)} TOC kontrolleri kapsamında, ${bolgeStr644}${p644Firma} personelinin ${p644Sefer} ${p644Guzergah} seferi için ${p644Kapi} kapısının körük ucunda ${p644Atik} yere bıraktığı tespit edilmiştir.\n\nKonuyla ilgili olarak ${getMaddeKifCumlesi(madde, kif)}\n\nİş bu tutanak imza altına alınmıştır.`;
+        } else if(madde === "EK 6.49") {
+            const sel649    = document.getElementById('p649_firma_sel');
+            const p649Firma = sel649.value === 'MANUEL'
+                ? (document.getElementById('p649_firma_text').value.trim() || '[FİRMA ADI]')
+                : (sel649.value || '[FİRMA ADI]');
+            const p649Personel = document.getElementById('p649_personel').value.trim() || '[PERSONEL ADI]';
+            const p649AracTip  = document.getElementById('p649_arac_tip').value || '[ARAÇ TİPİ]';
+            const p649Plaka    = document.getElementById('p649_plaka').value.trim() || '[PLAKA]';
+            const p649Tip      = document.getElementById('p649_tip').value || '';
+
+            // İyelik eki (personel adının son sesline göre)
+            function iyelik649(ad) {
+                const temiz = ad.trim().toLocaleLowerCase('tr');
+                const sesliler = ['a','e','ı','i','o','ö','u','ü'];
+                let sonSesli = '';
+                for(let i = temiz.length-1; i >= 0; i--) {
+                    if(sesliler.includes(temiz[i])) { sonSesli = temiz[i]; break; }
+                }
+                const kalinMap = { 'a':'ın', 'ı':'ın', 'o':'un', 'u':'un' };
+                const inceMap  = { 'e':'in', 'i':'in', 'ö':'ün', 'ü':'ün' };
+                const sonHarf  = temiz.slice(-1);
+                const sesliBiter = sesliler.includes(sonHarf);
+                const ek = kalinMap[sonSesli] || inceMap[sonSesli] || 'ın';
+                return sesliBiter ? `'n${ek}` : `'${ek}`;
+            }
+
+            const aracStr = `${p649Plaka} plakalı ${p649AracTip}`;
+
+            let ihlalCumlesi = '[İHLAL TİPİ SEÇİNİZ]';
+            if(p649Tip === 'yasak_bolge') {
+                const yolcuYokCb = document.getElementById('p649_yolcu_yok_cb').checked;
+                if(yolcuYokCb) {
+                    ihlalCumlesi = `isimli ${p649Firma} personelinin elektrikli araç kullanımının yasak olduğu bölgede ${aracStr} aracını, araçta yolcu bulunmadığı esnada kullandığı tespit edilmiştir.`;
+                } else {
+                    ihlalCumlesi = `isimli ${p649Firma} personelinin elektrikli araç kullanımının yasak olduğu bölgede ${aracStr} aracını kullandığı tespit edilmiştir.`;
+                }
+            } else if(p649Tip === 'telefon') {
+                ihlalCumlesi = `isimli ${p649Firma} personelinin ${aracStr} aracıyla hareket halinde cep telefonu ile ilgilendiği tespit edilmiştir.`;
+            } else if(p649Tip === 'kemer') {
+                ihlalCumlesi = `isimli ${p649Firma} personelinin ${aracStr} aracında kemer takmadan yolcu taşıdığı tespit edilmiştir.`;
+            } else if(p649Tip === 'hiz') {
+                ihlalCumlesi = `isimli ${p649Firma} personelinin ${aracStr} aracıyla seyir halindeyken hız sınırını aştığı tespit edilmiştir.`;
+            } else if(p649Tip === 'hiz_kesici') {
+                const aparatDurum = document.getElementById('p649_aparat_durum').value;
+                if(aparatDurum === 'sinirsiz') {
+                    ihlalCumlesi = `isimli ${p649Firma} personelinin ${aracStr} aracıyla seyir halindeyken hız kesicinin sınırlandırılmadığı tespit edilmiştir.`;
+                } else {
+                    ihlalCumlesi = `firmasına ait ${aracStr} aracının hız sınırlayıcı aparat kablosu takılı olmadan kullanıldığı tespit edilmiştir.`;
+                }
+            } else if(p649Tip === 'baska_arac') {
+                const itilenSel  = document.getElementById('p649_itilen_tip');
+                const itilenArac = itilenSel.value === 'MANUEL'
+                    ? (document.getElementById('p649_itilen_text').value.trim() || '[İTİLEN ARAÇ]')
+                    : itilenSel.value;
+                ihlalCumlesi = `isimli ${p649Firma} personelinin ${aracStr} aracını kullandığı esnada, ${itilenArac}yi eliyle uygunsuz biçimde ittiği tespit edilmiştir.`;
+            }
+
+            // Hız kesici + kablo yok durumunda personel adı öne yazılmaz
+            const kisiSatiri = (p649Tip === 'hiz_kesici' && document.getElementById('p649_aparat_durum').value === 'kablo_yok')
+                ? `${bolge} bölgesinde, ${p649Firma} firmasına ait ${p649Personel ? p649Personel + ' ' : ''}${aracStr} aracının hız sınırlayıcı aparat kablosu takılı olmadan kullanıldığı tespit edilmiştir.`
+                : `${bolge} bölgesinde, ${p649Personel} ${ihlalCumlesi}`;
+
+            finalBody = `${tStr} tarihi saat ${sStr}'${saatEki(sStr)} yapılan saha kontrolleri kapsamında, ${kisiSatiri}\n\nKonuyla ilgili olarak ${getMaddeKifCumlesi(madde, kif)}\n\nİş bu tutanak imza altına alınmıştır.`;
+        } else if(madde === "KIF_IPTAL") {
+            const kifNo = document.getElementById('kif').value.trim() || '[KİF NO]';
+            finalBody = `${tStr} tarihinde düzenlenen <strong>${kifNo}</strong> numaralı Kural İhlali Tespit formu sehven düzenlendiğinden iptal edilmiştir.\n\nİş bu tutanak imza altına alınmıştır.`;
+        } else if(madde === "SEAL") {
+            const sealTip   = document.getElementById('seal_tip').value;
+            const sealMahal = document.getElementById('seal_mahal').value.trim() || '[MAHAL KODU]';
+            const sealYeni  = document.getElementById('seal_yeni_no').value.trim() || '[YENİ SEAL NO]';
+            // Eski seal grubunu göster/gizle
+            document.getElementById('seal_eski_group').style.display = (sealTip === 'kopan') ? 'block' : 'none';
+            if(sealTip === 'kopan') {
+                const sealEski = document.getElementById('seal_eski_no').value.trim() || '[ESKİ SEAL NO]';
+                finalBody = `${tStr} tarihi saat ${sStr}'${saatEki(sStr)} ${bolge} ${sealMahal} mahal kodlu engelli WC'nin ${sealEski} numaralı seal'ının koparıldığı tespit edilmiştir. İlgili WC'nin acil durum butonuna ${sealYeni} numaralı yeni seal takılmıştır.\n\nİş bu tutanak imza altına alınmıştır.`;
+            } else {
+                finalBody = `${tStr} tarihi saat ${sStr}'${saatEki(sStr)} ${bolge} ${sealMahal} mahal kodlu engelli WC'nin seal'ının olmadığı tespit edilmiştir. İlgili WC'nin acil durum butonuna ${sealYeni} numaralı yeni seal takılmıştır.\n\nİş bu tutanak imza altına alınmıştır.`;
+            }
+        } else {
+            const manuelDetay = document.getElementById('manuel_detay').value.trim();
+            const ekMaddelerVar = getEkMaddeler().length > 0;
+            const kifCumlesi = kif && kif !== '[KİF NO]'
+                ? `\n\n${getMaddeKifCumlesi('EK [LÜTFEN BİLDİRİNİZ]', kif)}`
+                : '';
+            finalBody = `${tStr} tarihi saat ${sStr}'${saatEki(sStr)} yapılan saha kontrolleri kapsamında, ${bolge} ${manuelDetay}${kifCumlesi}\n\nİş bu tutanak imza altına alınmıştır.`;
+        }
+
+        document.getElementById('out-date').innerText = "İstanbul, " + tStr;
+        document.getElementById('out-body').innerHTML = finalBody.split('\n\n').map((p, i, arr) => {
+            const isLast = i === arr.length - 1;
+            const marginBottom = isLast ? '0' : '1.2em';
+            return `<p style="text-align:justify; text-indent:2em; margin:0 0 ${marginBottom} 0;">${p}</p>`;
+        }).join('');
+        
+        const d_v = getP('duz');
+        const s_v = getP('sef');
+        const m_v = getP('mud');
+        document.getElementById('prev-duz').innerHTML = `<p style='margin:0;padding:0;font-weight:bold;'>${d_v.n}</p><p style='margin:0;padding:0;font-weight:bold;'>${d_v.t}</p>`;
+        document.getElementById('prev-sef').innerHTML = `<p style='margin:0;padding:0;font-weight:bold;'>${s_v.n}</p><p style='margin:0;padding:0;font-weight:bold;'>${s_v.t}</p>`;
+        document.getElementById('prev-mud').innerHTML = `<p style='margin:0;padding:0;font-weight:bold;'>${m_v.n}</p><p style='margin:0;padding:0;font-weight:bold;'>${m_v.t}</p>`;
+    }
+
+    let _pendingGenerate = false;
+
+    async function generateWord() {
+        // Zorunlu alan kontrolü
+        const eksik = [];
+        const maddeVal = document.getElementById('madde').value;
+        const hhRaw = document.getElementById('hh').value;
+        const mmRaw = document.getElementById('mm').value;
+        if(hhRaw === '' && mmRaw === '' && maddeVal !== 'KIF_IPTAL') eksik.push('Saat');
+        if(!document.getElementById('bolge').value.trim() && maddeVal !== 'KIF_IPTAL') eksik.push('Bölge');
+        if(maddeVal !== 'SEAL' && maddeVal !== 'KIF_IPTAL' && !document.getElementById('kif').value.trim()) eksik.push('KİF No');
+        if(eksik.length > 0 && !_pendingGenerate) {
+            document.getElementById('eksikListesi').innerHTML = eksik.map(e => `• ${e}`).join('<br>');
+            document.getElementById('eksikModal').classList.add('show');
+            return;
+        }
+        _pendingGenerate = false;
+
+        const { Document, Packer, Paragraph, TextRun, AlignmentType, Table, TableRow, TableCell, WidthType, ImageRun, Header, Footer, BorderStyle } = docx;
+
+        const d_v = getP('duz');
+        const s_v = getP('sef');
+        const m_v = getP('mud');
+
+        // Bold destekli Word paragraf oluşturucu
+        function makeWordParagraph(pEl, index, arr) {
+            const runs = [];
+            pEl.childNodes.forEach(node => {
+                if (node.nodeType === Node.TEXT_NODE) {
+                    if (node.textContent) runs.push(new TextRun({ text: node.textContent, size: 22, font: "Tahoma" }));
+                } else if (node.nodeName === 'STRONG' || node.nodeName === 'B') {
+                    if (node.textContent) runs.push(new TextRun({ text: node.textContent, bold: true, size: 22, font: "Tahoma" }));
+                }
+            });
+            const isLast = index === arr.length - 1;
+            const spaceAfter = 0;
+            return new Paragraph({ alignment: AlignmentType.BOTH, spacing: { after: spaceAfter, line: 360, lineRule: "auto" }, indent: { firstLine: 720 }, children: runs });
+        }
+        const bodyParas = Array.from(document.querySelectorAll('#out-body p'));
+
+        // FIX 3 - Fotoğraflar: canvas ile 3px siyah çerçeve görüntüye gömülür
+        const photoChildren = [];
+        const ph = document.getElementById('photos');
+        if (ph.files.length > 0) {
+            photoChildren.push(
+                new Paragraph({ pageBreakBefore: true, children: [] })
+            );
+        }
+
+        async function addBorderToImage(file) {
+            return new Promise((resolve) => {
+                const url = URL.createObjectURL(file);
+                const img = new Image();
+                img.onload = () => {
+                    const bw = 9; // 3pt ≈ 9px (96dpi)
+                    const canvas = document.createElement('canvas');
+                    canvas.width  = img.width  + bw * 2;
+                    canvas.height = img.height + bw * 2;
+                    const ctx = canvas.getContext('2d');
+                    ctx.fillStyle = '#000000';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, bw, bw, img.width, img.height);
+                    URL.revokeObjectURL(url);
+                    // Gerçek boyutları çözümle için canvas boyutlarını buf ile birlikte döndür
+                    canvas.toBlob(blob => {
+                        blob.arrayBuffer().then(buf => resolve({ buf, w: canvas.width, h: canvas.height }));
+                    }, 'image/jpeg', 0.95);
+                };
+                img.src = url;
+            });
+        }
+
+        for (const f of ph.files) {
+            const { buf, w, h } = await addBorderToImage(f);
+            // Sayfa içi kullanılabilir genişlik: A4 (595pt) - sol/sağ margin (2x72pt) = 451pt
+            // docx'te birim EMU değil pt; ImageRun width/height piksel cinsinden (96dpi varsayım)
+            // Kullanılabilir max genişlik: 451pt → 96dpi'de ≈ 601px; max yükseklik: 700px
+            const MAX_W = 600;
+            const MAX_H = 700;
+            const ratio = Math.min(MAX_W / w, MAX_H / h, 1); // büyütme yok
+            const finalW = Math.round(w * ratio);
+            const finalH = Math.round(h * ratio);
+            photoChildren.push(
+                new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    spacing: { before: 400, after: 0 },
+                    children: [new ImageRun({
+                        data: buf,
+                        transformation: { width: finalW, height: finalH }
+                    })]
+                })
+            );
+        }
+
+        const doc = new Document({
+            sections: [{
+                properties: { page: { margin: { top: 720, right: 1440, bottom: 720, left: 1440 } } },
+                // FIX 1 - Logo: fetch() kaldırıldı, ArrayBuffer doğrudan kullanılıyor
+                headers: { default: new Header({ children: logoAB1 ? [new Paragraph({ children: [new ImageRun({ data: logoAB1, transformation: { width: 98, height: 84 } })] })] : [] }) },
+                footers: { default: new Footer({ children: logoAB2 ? [new Paragraph({ children: [new ImageRun({ data: logoAB2, transformation: { width: 161, height: 94 } })] })] : [] }) },
+                children: [
+                    // FIX 4 - Tarih Word'de sağa hizalı (spacing eklendi, hizalama korundu)
+                    new Paragraph({ alignment: AlignmentType.RIGHT, spacing: { after: 0 }, children: [new TextRun({ text: document.getElementById('out-date').innerText, size: 22, font: "Tahoma" })] }),
+                     new Paragraph({ alignment: AlignmentType.LEFT, spacing: { before: 0, after: 0 }, children: [new TextRun({ text: "", size: 22, font: "Tahoma" })] }),
+                     new Paragraph({ alignment: AlignmentType.LEFT, spacing: { before: 0, after: 0 }, children: [new TextRun({ text: "", size: 22, font: "Tahoma" })] }),
+                     new Paragraph({ alignment: AlignmentType.LEFT, spacing: { before: 0, after: 0 }, children: [new TextRun({ text: "", size: 22, font: "Tahoma" })] }),
+                     new Paragraph({ alignment: AlignmentType.LEFT, spacing: { before: 0, after: 0 }, children: [new TextRun({ text: "", size: 22, font: "Tahoma" })] }),
+                     new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 0, after: 0 }, children: [new TextRun({ text: "TUTANAK", bold: true, size: 32, font: "Tahoma" })] }),
+                     new Paragraph({ alignment: AlignmentType.LEFT, spacing: { before: 0, after: 0 }, children: [new TextRun({ text: "", size: 22, font: "Tahoma" })] }),
+                     new Paragraph({ alignment: AlignmentType.LEFT, spacing: { before: 0, after: 0 }, children: [new TextRun({ text: "", size: 22, font: "Tahoma" })] }),
+                     new Paragraph({ alignment: AlignmentType.LEFT, spacing: { before: 0, after: 0 }, children: [new TextRun({ text: "", size: 22, font: "Tahoma" })] }),
+                    ...bodyParas.flatMap((pEl, i, arr) => {
+                        const para = makeWordParagraph(pEl, i, arr);
+                        const isLast = i === arr.length - 1;
+                        return isLast ? [para] : [para, new Paragraph({ alignment: AlignmentType.LEFT, spacing: { before: 0, after: 0 }, children: [new TextRun({ text: "", size: 22, font: "Tahoma" })] })];
+                    }),
+                    ...[...Array(7)].map(() => new Paragraph({ alignment: AlignmentType.LEFT, spacing: { before: 0, after: 0 }, children: [new TextRun({ text: "", size: 22, font: "Tahoma" })] })),
+                    ...(maddeVal === 'KIF_IPTAL' ? [] : [
+                        new Table({
+                            width: { size: 100, type: WidthType.PERCENTAGE },
+                            borders: { top: {style: BorderStyle.NONE}, bottom: {style: BorderStyle.NONE}, left: {style: BorderStyle.NONE}, right: {style: BorderStyle.NONE}, insideHorizontal: {style: BorderStyle.NONE}, insideVertical: {style: BorderStyle.NONE} },
+                            rows: [new TableRow({ children: [
+                                new TableCell({ width: { size: 41, type: WidthType.PERCENTAGE }, children: [new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 0, after: 0 }, children: [new TextRun({ text: d_v.n, bold: true, size: 22, font: "Tahoma" }), new TextRun({ text: d_v.t, bold: true, size: 22, font: "Tahoma", break: 1 })] })] }),
+                                new TableCell({ width: { size: 18, type: WidthType.PERCENTAGE }, children: [new Paragraph({ children: [new TextRun({ text: "", size: 22 })] })] }),
+                                new TableCell({ width: { size: 41, type: WidthType.PERCENTAGE }, children: [new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 0, after: 0 }, children: [new TextRun({ text: s_v.n, bold: true, size: 22, font: "Tahoma" }), new TextRun({ text: s_v.t, bold: true, size: 22, font: "Tahoma", break: 1 })] })] }),
+                            ]})]
+                        }),
+                        new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 600, after: 0 }, children: [new TextRun({ text: " ", size: 22, font: "Tahoma" })] }),
+                        new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 0, after: 0 }, children: [new TextRun({ text: " ", size: 22, font: "Tahoma" })] }),
+                        new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 0, after: 0 }, children: [new TextRun({ text: " ", size: 22, font: "Tahoma" })] }),
+                    ]),
+                    new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: maddeVal === 'KIF_IPTAL' ? 1200 : 0 }, children: [new TextRun({ text: m_v.n, bold: true, size: 22, font: "Tahoma" }), new TextRun({ text: m_v.t, bold: true, size: 22, font: "Tahoma", break: 1 })] }),
+                    // FIX 3 - Fotoğraflar artık burada spread ile ekleniyor
+                    ...photoChildren
+                ]
+            }]
+        });
+
+        Packer.toBlob(doc).then(blob => { saveAs(blob, `Tutanak_${document.getElementById('kif').value}.docx`); });
+    }
+    document.getElementById('prev-img1').innerHTML = '<img src="data:image/jpeg;base64,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" height="80">';
+    document.getElementById('prev-img2').innerHTML = '<img src="data:image/jpeg;base64,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" height="80">';
+    // Bugünün tarihini otomatik doldur
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    document.getElementById('tarih').value = `${yyyy}-${mm}-${dd}`;
+
+    togglePanel();
+    updateCeza();
+    update();
+
+    // ── EK MADDE FONKSİYONLARI ──
+    const EK_MADDE_SECENEKLER = [
+        'EK 6.2','EK 6.34','EK 6.47','EK 6.49','EK 6.57',
+        'EK 6.61','EK 6.62','EK 6.68','EK 6.132'
+    ];
+
+    function ekMaddeEkle() {
+        const list = document.getElementById('ek-madde-list');
+        const id = Date.now();
+        const opts = EK_MADDE_SECENEKLER.map(m => `<option value="${m}">${m}</option>`).join('');
+        const div = document.createElement('div');
+        div.id = 'ekm_' + id;
+        div.style.cssText = 'display:flex; gap:6px; align-items:center; margin-bottom:6px;';
+        div.innerHTML = `
+            <select onchange="update()" style="flex:1; margin-bottom:0; font-size:12px; padding:7px 10px;">${opts}</select>
+            <button onclick="ekMaddeSil('ekm_${id}')" style="background:#dc3545; color:#fff; border:none; padding:5px 9px; border-radius:5px; cursor:pointer; font-size:11px; flex-shrink:0;">✕</button>
+        `;
+        list.appendChild(div);
+        update();
+    }
+
+    function ekMaddeSil(id) {
+        const el = document.getElementById(id);
+        if (el) el.remove();
+        update();
+    }
+
+    function getEkMaddeler() {
+        const rows = document.querySelectorAll('#ek-madde-list > div select');
+        return Array.from(rows).map(s => s.value).filter(Boolean);
+    }
+
+    // Tüm maddeleri birleştirip KİF cümlesini döndür
+    function getMaddeKifCumlesi(anaMadde, kif) {
+        const ekler = getEkMaddeler();
+        const tumMaddeler = [anaMadde, ...ekler];
+        const kifStr = kif || '[KİF NO]';
+
+        if (tumMaddeler.length === 1) {
+            return `<strong>${anaMadde}</strong> maddesi uyarınca <strong>${kifStr}</strong> numaralı Kural İhlali Tespit Formu düzenlenmiştir.`;
+        } else {
+            const maddeListesi = tumMaddeler.map(m => `<strong>${m}</strong>`);
+            const sonMadde = maddeListesi.pop();
+            const maddeStr = maddeListesi.join(', ') + ' ve ' + sonMadde;
+            return `${maddeStr} maddeleri uyarınca <strong>${kifStr}</strong> numaralı Kural İhlali Tespit Formu düzenlenmiştir.`;
+        }
+    }
+
+    // ── KOPYALA FONKSİYONU ──
+    function metniKopyala() {
+        const bodyParas = document.querySelectorAll('#out-body p');
+        const tumParagraflar = Array.from(bodyParas).map(p =>
+            p.innerHTML
+                .replace(/<strong>(.*?)<\/strong>/gi, '$1')
+                .replace(/<b>(.*?)<\/b>/gi, '$1')
+                .replace(/<[^>]+>/g, '')
+                .replace(/&nbsp;/g, ' ')
+                .trim()
+        ).filter(Boolean);
+
+        // "İş bu tutanak" cümlesini çıkar (son paragraftan)
+        const sonParagraf = tumParagraflar[tumParagraflar.length - 1] || '';
+        if (sonParagraf.startsWith('İş bu tutanak')) {
+            tumParagraflar.pop();
+        }
+
+        const metin = tumParagraflar.join('\n\n');
+        navigator.clipboard.writeText(metin).then(() => {
+            const btn = document.getElementById('kopyala-btn');
+            const orijinal = btn.textContent;
+            btn.textContent = '✅ Kopyalandı';
+            btn.style.color = '#25D366';
+            btn.style.borderColor = '#25D366';
+            setTimeout(() => {
+                btn.textContent = orijinal;
+                btn.style.color = '';
+                btn.style.borderColor = '';
+            }, 2000);
+        });
+    }
+
+    // ── WHATSAPP FONKSİYONLARI ──
+
+    // Tutanak metnini düz metin olarak döndür (HTML tagları temizle)
+    function getTutanakDuzMetin() {
+        const tarih = document.getElementById('out-date').innerText;
+        const bodyParas = document.querySelectorAll('#out-body p');
+        let metin = '*TUTANAK*\n\n';
+        metin += tarih + '\n\n';
+        bodyParas.forEach(p => {
+            let satir = p.innerHTML
+                .replace(/<strong>(.*?)<\/strong>/gi, '*$1*')
+                .replace(/<b>(.*?)<\/b>/gi, '*$1*')
+                .replace(/<[^>]+>/g, '')
+                .replace(/&nbsp;/g, ' ')
+                .trim();
+            if (satir) metin += satir + '\n\n';
+        });
+        return metin.trim();
+    }
+
+    function waAc(numara) {
+        const metin = getTutanakDuzMetin();
+        const encoded = encodeURIComponent(metin);
+        let temizNumara = numara.replace(/\D/g, '');
+        // 0 ile başlıyorsa başına 90 ekle (05xx → 905xx)
+        if (temizNumara.startsWith('0')) temizNumara = '9' + temizNumara;
+        location.href = `https://wa.me/${temizNumara}?text=${encoded}`;
+    }
+
+    function sendWhatsApp() {
+        if (!WA_SABIT_NUMARA || WA_SABIT_NUMARA === '905XXXXXXXXX') {
+            alert('⚠️ Lütfen önce iso.html dosyasındaki WA_SABIT_NUMARA değişkenini kendi numaranızla güncelleyin.');
+            return;
+        }
+        waAc(WA_SABIT_NUMARA);
+    }
+
+    function waModalAc() {
+        document.getElementById('waNumaraInput').value = '';
+        document.getElementById('waModal').classList.add('show');
+        setTimeout(() => document.getElementById('waNumaraInput').focus(), 100);
+    }
+
+    function waModalKapat() {
+        document.getElementById('waModal').classList.remove('show');
+    }
+
+    function waModalGonder() {
+        const numara = document.getElementById('waNumaraInput').value.trim();
+        if (!numara || numara.length < 10) {
+            document.getElementById('waNumaraInput').style.borderColor = '#dc3545';
+            setTimeout(() => document.getElementById('waNumaraInput').style.borderColor = '', 1200);
+            return;
+        }
+        waModalKapat();
+        waAc(numara);
+    }
+
+    // Enter tuşuyla da gönder
+    document.getElementById('waNumaraInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') waModalGonder();
+        if (e.key === 'Escape') waModalKapat();
+    });
+
+    // Modalın dışına tıklayınca kapat
+    document.getElementById('waModal').addEventListener('click', function(e) {
+        if (e.target === this) waModalKapat();
+    });</script>
+</body>
+</html>
